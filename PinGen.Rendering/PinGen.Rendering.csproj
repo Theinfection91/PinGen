@@ -10,6 +10,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
+		<ProjectReference Include="..\PinGen.IO\PinGen.IO.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -7,8 +7,8 @@ namespace PinGen.Core.Models
 {
     public class TemplateDefinition
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; set; } = 1000;
+        public int Height { get; set; } = 1500;
         public Rect TitleArea { get; set; }
         public Rect? FooterArea { get; set; }
         public List<Rect> ImageSlots { get; set; } = new();
