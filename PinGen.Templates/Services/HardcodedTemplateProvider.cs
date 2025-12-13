@@ -6,11 +6,11 @@ using System.Text;
 
 namespace PinGen.Templates.Services
 {
-    public class JsonTemplateProvider : ITemplateProvider
+    public class HardcodedTemplateProvider : ITemplateProvider
     {
         public TemplateDefinition GetTemplate(int itemCount)
         {
-            // Implementation to read and parse a JSON template based on the itemCount
+            // Return a hardcoded template definition based on the itemCount
             return new TemplateDefinition();
         }
     }

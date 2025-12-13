@@ -1,13 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
 
-  <ItemGroup>
-    <Folder Include="Definitions\" />
-  </ItemGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Folder Include="Definitions\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
+		<ProjectReference Include="..\PinGen.IO\PinGen.IO.csproj" />
+		<ProjectReference Include="..\PinGen.Rendering\PinGen.Rendering.csproj" />
+	</ItemGroup>
 
 </Project>

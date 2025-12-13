@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Assets\Backgrounds\" />
-    <Folder Include="Assets\Fonts\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Assets\Backgrounds\" />
+		<Folder Include="Assets\Fonts\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
-    <ProjectReference Include="..\PinGen.IO\PinGen.IO.csproj" />
-    <ProjectReference Include="..\PinGen.Rendering\PinGen.Rendering.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
+		<ProjectReference Include="..\PinGen.IO\PinGen.IO.csproj" />
+		<ProjectReference Include="..\PinGen.Rendering\PinGen.Rendering.csproj" />
+	</ItemGroup>
 
 </Project>
