@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="PinGen.App/PinGen.App.csproj" />
   <Project Path="PinGen.Core/PinGen.Core.csproj" />
+  <Project Path="PinGen.IO/PinGen.IO.csproj" />
   <Project Path="PinGen.Rendering/PinGen.Rendering.csproj" />
 </Solution>
