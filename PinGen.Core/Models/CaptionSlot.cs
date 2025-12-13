@@ -5,9 +5,9 @@ using System.Windows;
 
 namespace PinGen.Core.Models
 {
-    public class TemplateSlot
+    public class CaptionSlot
     {
         public Rect Bounds { get; set; }
-        public double ImageScale { get; set; } = 1.0;
+        public int FontSize { get; set; } = 18;
     }
 }

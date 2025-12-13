@@ -10,6 +10,8 @@ namespace PinGen.Core.Models
         public int Width { get; set; }
         public int Height { get; set; }
         public Rect TitleArea { get; set; }
+        public Rect? FooterArea { get; set; }
         public List<Rect> ImageSlots { get; set; } = new();
+        public List<Rect> CaptionAreas { get; set; } = new();
     }
 }

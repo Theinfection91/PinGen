@@ -6,6 +6,7 @@ namespace PinGen.Core.Enums
 {
     public enum OutputFormat
     {
-
+        Preview,
+        HighQuality
     }
 }
