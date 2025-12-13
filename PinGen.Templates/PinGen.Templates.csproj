@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
+    <Folder Include="Definitions\" />
   </ItemGroup>
 
 </Project>

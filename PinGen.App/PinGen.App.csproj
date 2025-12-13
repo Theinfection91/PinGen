@@ -11,8 +11,12 @@
   <ItemGroup>
     <Folder Include="Assets\Backgrounds\" />
     <Folder Include="Assets\Fonts\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Views\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
+    <ProjectReference Include="..\PinGen.IO\PinGen.IO.csproj" />
+    <ProjectReference Include="..\PinGen.Rendering\PinGen.Rendering.csproj" />
   </ItemGroup>
 
 </Project>
