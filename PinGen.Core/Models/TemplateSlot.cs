@@ -9,5 +9,7 @@ namespace PinGen.Core.Models
     {
         public Rect Bounds { get; set; }
         public double ImageScale { get; set; } = 1.0;
+        public bool ShowNumber { get; set; }
+        public Rect? NumberArea { get; set; }
     }
 }

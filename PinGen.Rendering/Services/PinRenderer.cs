@@ -1,4 +1,5 @@
 ﻿using PinGen.Core.Models;
+using PinGen.ImageProcessing.Interfaces;
 using PinGen.IO.Interfaces;
 using PinGen.Rendering.Helpers;
 using PinGen.Rendering.Interfaces;
@@ -15,10 +16,12 @@ namespace PinGen.Rendering.Services
     public class PinRenderer : IPinRenderer
     {
         private readonly IImageLoader _imageLoader;
+        private readonly IImageProcessor _imageProcessor;
 
-        public PinRenderer(IImageLoader imageLoader)
+        public PinRenderer(IImageLoader imageLoader, IImageProcessor imageProcessor)
         {
             _imageLoader = imageLoader;
+            _imageProcessor = imageProcessor;
         }
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
@@ -48,13 +51,48 @@ namespace PinGen.Rendering.Services
             context.DrawText(titleText, new Point(template.TitleArea.X, template.TitleArea.Y));
 
             // Draw images
-            for (int i = 0; i < request.ItemImages.Count && i < template.ImageSlots.Count; i++)
+            for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
             {
-                var slot = template.ImageSlots[i];
-                var image = _imageLoader.Load(request.ItemImages[i].SourcePath);
+                var slot = template.TemplateSlots[i];
+
+                //var image = _imageLoader.Load(request.ItemImages[i].SourcePath);
+
+                // Use image processor to remove white background
+                var image = _imageProcessor.RemoveWhiteBackground(request.ItemImages[i].SourcePath);
 
                 // Fit image into slot
-                context.DrawImage(image, slot.FitTo(image));
+                context.DrawImage(image, slot.Bounds.FitTo(image));
+
+                // Draw number overlay if enabled
+                if (slot.ShowNumber && slot.NumberArea.HasValue)
+                {
+                    var numberArea = slot.NumberArea.Value;
+
+                    // Circle background
+                    context.DrawEllipse(
+                        Brushes.Black,
+                        null,
+                        new Point(
+                            numberArea.X + numberArea.Width / 2,
+                            numberArea.Y + numberArea.Height / 2),
+                        numberArea.Width / 2,
+                        numberArea.Height / 2);
+
+                    var numberText = new FormattedText(
+                        (i + 1).ToString(),
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal),
+                        28,
+                        Brushes.White,
+                        1.0);
+
+                    context.DrawText(
+                        numberText,
+                        new Point(
+                            numberArea.X + (numberArea.Width - numberText.Width) / 2,
+                            numberArea.Y + (numberArea.Height - numberText.Height) / 2));
+                }
             }
 
             // Draw captions

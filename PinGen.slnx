@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="PinGen.App/PinGen.App.csproj" />
   <Project Path="PinGen.Core/PinGen.Core.csproj" />
+  <Project Path="PinGen.ImageProcessing/PinGen.ImageProcessing.csproj" Id="ef31d142-4abc-42f7-8b7f-ac95d47baa3b" />
   <Project Path="PinGen.IO/PinGen.IO.csproj" />
   <Project Path="PinGen.Rendering/PinGen.Rendering.csproj" />
   <Project Path="PinGen.Templates/PinGen.Templates.csproj" />

@@ -1,4 +1,6 @@
 ﻿using PinGen.Core.Models;
+using PinGen.ImageProcessing.Interfaces;
+using PinGen.ImageProcessing.Services;
 using PinGen.IO.Services;
 using PinGen.Rendering.Services;
 using PinGen.Templates.Services;
@@ -56,7 +58,8 @@ namespace PinGen.App
 
                 // Setup services
                 var imageLoader = new ImageLoader();
-                var renderer = new PinRenderer(imageLoader);
+                var imageProcessor = new ImageSharpProcessor();
+                var renderer = new PinRenderer(imageLoader, imageProcessor);
                 var fileSaver = new FileSaver();
 
                 // Render the pin board

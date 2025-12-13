@@ -11,7 +11,7 @@ namespace PinGen.Core.Models
         public int Height { get; set; } = 1500;
         public Rect TitleArea { get; set; }
         public Rect? FooterArea { get; set; }
-        public List<Rect> ImageSlots { get; set; } = new();
+        public List<TemplateSlot> TemplateSlots { get; set; } = new();
         public List<Rect> CaptionAreas { get; set; } = new();
     }
 }
