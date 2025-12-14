@@ -57,9 +57,10 @@ namespace PinGen.App
                 var template = templateProvider.GetTemplate(request.ItemImages.Count);
 
                 // Setup services
+                var fontLoader = new FontLoader();
                 var imageLoader = new ImageLoader();
                 var imageProcessor = new ImageSharpProcessor();
-                var renderer = new PinRenderer(imageLoader, imageProcessor);
+                var renderer = new PinRenderer(fontLoader, imageLoader, imageProcessor);
                 var fileSaver = new FileSaver();
 
                 // Render the pin board

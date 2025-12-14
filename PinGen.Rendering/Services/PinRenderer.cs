@@ -15,13 +15,23 @@ namespace PinGen.Rendering.Services
 {
     public class PinRenderer : IPinRenderer
     {
+        private readonly IFontLoader _fontLoader;
         private readonly IImageLoader _imageLoader;
         private readonly IImageProcessor _imageProcessor;
 
-        public PinRenderer(IImageLoader imageLoader, IImageProcessor imageProcessor)
+        private static Typeface defaultFont;
+
+        public PinRenderer(IFontLoader fontLoader, IImageLoader imageLoader, IImageProcessor imageProcessor)
         {
+            _fontLoader = fontLoader;
             _imageLoader = imageLoader;
             _imageProcessor = imageProcessor;
+
+            // Load default font from base app domain directory
+            string appBase = AppDomain.CurrentDomain.BaseDirectory;
+            defaultFont = _fontLoader.Load(
+                Path.Combine(appBase, "Assets", "Fonts", "horizon.otf"),
+                "Horizon");
         }
 
         //public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
@@ -170,15 +180,7 @@ namespace PinGen.Rendering.Services
             context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
 
             // Title (black fill + white stroke)
-            DrawOutlinedText(
-                context,
-                request.Title,
-                template.TitleArea.X,
-                template.TitleArea.Y,
-                48,
-                Brushes.Black,
-                Brushes.White,
-                4);
+            DrawOutlinedText(context, request.Title, template.TitleArea.X, template.TitleArea.Y, 48, template.TitleArea.Width, Brushes.Black, Brushes.White, 4, TextAlignment.Center);
 
             // Images
             for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
@@ -214,7 +216,7 @@ namespace PinGen.Rendering.Services
                         (i + 1).ToString(),
                         System.Globalization.CultureInfo.InvariantCulture,
                         FlowDirection.LeftToRight,
-                        new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal),
+                        defaultFont,
                         28,
                         Brushes.White,
                         1.0);
@@ -227,42 +229,18 @@ namespace PinGen.Rendering.Services
                 }
             }
 
-            // Draw captions with black fill and white outline
+            // Caption
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
             {
                 var area = template.CaptionAreas[i];
-                var captionText = new FormattedText(
-                    request.Captions[i],
-                    System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface("Arial"),
-                    24,
-                    Brushes.Black,
-                    1.0);
-                var captionGeometry = captionText.BuildGeometry(new Point(area.X, area.Y));
-                // Draw white outline
-                context.DrawGeometry(null, new Pen(Brushes.White, 2), captionGeometry);
-                // Draw black fill on top
-                context.DrawGeometry(Brushes.Black, null, captionGeometry);
+                DrawOutlinedText(context, request.Captions[i], area.X, area.Y, 24, area.Width, Brushes.Black, Brushes.White, 2, TextAlignment.Left);
             }
 
-            // Draw footer if exists with black fill and white outline
+            // Footer
             if (!string.IsNullOrEmpty(request.Footer) && template.FooterArea.HasValue)
             {
                 var footerArea = template.FooterArea.Value;
-                var footerText = new FormattedText(
-                    request.Footer,
-                    System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface("Arial"),
-                    48,
-                    Brushes.Black,
-                    1.0);
-                var footerGeometry = footerText.BuildGeometry(new Point(footerArea.X, footerArea.Y));
-                // Draw white outline
-                context.DrawGeometry(null, new Pen(Brushes.White, 4), footerGeometry);
-                // Draw black fill on top
-                context.DrawGeometry(Brushes.Black, null, footerGeometry);
+                DrawOutlinedText(context, request.Footer, footerArea.X, footerArea.Y, 48, footerArea.Width, Brushes.Black, Brushes.White, 4, TextAlignment.Center);
             }
 
             context.Close();
@@ -272,17 +250,22 @@ namespace PinGen.Rendering.Services
         }
 
 
-        private static void DrawOutlinedText(DrawingContext ctx, string text, double x, double y, double size, Brush fill, Brush stroke, double strokeWidth)
+        private static void DrawOutlinedText(DrawingContext ctx, string text, double x, double y, double size, double maxWidth, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
         {
             var ft = new FormattedText(
                 text,
                 System.Globalization.CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
-                new Typeface("Arial"),
+                defaultFont,
                 size,
                 fill,
-                1.0);
+                1.0)
+            {
+                MaxTextWidth = maxWidth,
+                TextAlignment = alignment
+            };
 
+            // Use BuildGeometry for outline
             var geo = ft.BuildGeometry(new Point(x, y));
 
             ctx.DrawGeometry(null, new Pen(stroke, strokeWidth), geo);

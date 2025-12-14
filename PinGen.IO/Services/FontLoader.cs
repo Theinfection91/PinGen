@@ -11,12 +11,12 @@ namespace PinGen.IO.Services
     public class FontLoader : IFontLoader
     {
         // TODO: Fine tune this later as WPF font loading can be tricky
-        public Typeface Load(string fontPath)
+        public Typeface Load(string fontPath, string fontName)
         {
             if (!File.Exists(fontPath))
                 throw new FileNotFoundException("Font file not found", fontPath);
 
-            var fontFamily = new FontFamily(new Uri(fontPath), "./#CustomFont");
+            var fontFamily = new FontFamily(new Uri(fontPath), $"./#{fontName}");
             return new Typeface(fontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
         }
     }

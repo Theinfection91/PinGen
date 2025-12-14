@@ -7,6 +7,6 @@ namespace PinGen.IO.Interfaces
 {
     public interface IFontLoader
     {
-        Typeface Load(string fontPath);
+        Typeface Load(string fontPath, string fontName);
     }
 }
