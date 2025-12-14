@@ -9,9 +9,8 @@ namespace PinGen.ImageProcessing.Services
 {
     public class ImageSharpProcessor : IImageProcessor
     {
-        public BitmapSource LoadPrepareAndRemoveWhite(string path, int targetWidth, int targetHeight, byte tolerance = 15)
+        public BitmapSource LoadPrepareAndRemoveWhite(Image<Rgba32> image, int targetWidth, int targetHeight, byte tolerance = 15)
         {
-            using var image = Image.Load<Rgba32>(path);
             var frame = image.Frames.RootFrame;
 
             int width = frame.Width;
