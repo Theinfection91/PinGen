@@ -6,6 +6,7 @@ using PinGen.Rendering.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
@@ -51,7 +52,9 @@ namespace PinGen.Rendering.Services
             using var context = visual.RenderOpen();
 
             // Background (already correct size)
-            var background = _imageLoader.Load(@"C:\Chase\CSharpProjects\PinGen\PinGen.App\Assets\Backgrounds\bg1.png");
+            string appBase = AppDomain.CurrentDomain.BaseDirectory;
+            var bgPath = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
+            var background = _imageLoader.Load(bgPath);
             context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
 
             // Title (black fill + white stroke)
@@ -67,7 +70,7 @@ namespace PinGen.Rendering.Services
                 int targetH = (int)Math.Round(fitted.Height);
 
                 var imageSharp = _imageLoader.LoadImageSharp(request.ItemImages[i].SourcePath);
-                var image = _imageProcessor.LoadPrepareAndRemoveWhite(imageSharp, targetW, targetH);
+                var image = _imageProcessor.PrepareAndRemoveWhite(imageSharp, targetW, targetH);
 
                 var drawRect = fitted.FitTo(image);
                 context.DrawImage(image, drawRect);

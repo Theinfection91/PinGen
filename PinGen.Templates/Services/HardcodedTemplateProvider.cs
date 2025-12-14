@@ -22,31 +22,31 @@ namespace PinGen.Templates.Services
                 {
                     new TemplateSlot
                     {
-                        Bounds = new Rect(30, 310, 400, 350),
+                        Bounds = new Rect(30, 310, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(310, 370, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(575, 350, 400, 350),
+                        Bounds = new Rect(575, 350, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(825, 525, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(320, 590, 400, 350),
+                        Bounds = new Rect(320, 590, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(370, 635, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(40, 865, 400, 350),
+                        Bounds = new Rect(40, 865, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(290, 1045, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(560, 765, 400, 350),
+                        Bounds = new Rect(560, 765, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(810, 845, 80, 80)
                     },

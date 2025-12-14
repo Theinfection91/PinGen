@@ -9,6 +9,6 @@ namespace PinGen.ImageProcessing.Interfaces
 {
     public interface IImageProcessor
     {
-        BitmapSource LoadPrepareAndRemoveWhite(Image<Rgba32> image, int targetWidth, int targetHeight, byte tolerance = 15);
+        BitmapSource PrepareAndRemoveWhite(Image<Rgba32> image, int targetWidth, int targetHeight, byte tolerance = 15);
     }
 }

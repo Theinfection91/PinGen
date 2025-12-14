@@ -27,6 +27,5 @@ namespace PinGen.Rendering.Helpers
                 Math.Round(width),
                 Math.Round(height));
         }
-
     }
 }
