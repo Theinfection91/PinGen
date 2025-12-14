@@ -38,7 +38,7 @@ namespace PinGen.Rendering.Services
             var background = _imageLoader.Load(bgPath);
             context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
 
-            // Draw title
+            // Draw title with black fill and white outline
             var titleText = new FormattedText(
                 request.Title,
                 System.Globalization.CultureInfo.CurrentCulture,
@@ -48,7 +48,14 @@ namespace PinGen.Rendering.Services
                 Brushes.Black,
                 1.0);
 
-            context.DrawText(titleText, new Point(template.TitleArea.X, template.TitleArea.Y));
+            // Convert text to geometry
+            var textGeometry = titleText.BuildGeometry(new Point(template.TitleArea.X, template.TitleArea.Y));
+
+            // Draw white outline
+            context.DrawGeometry(null, new Pen(Brushes.White, 4), textGeometry);
+
+            // Draw black fill on top
+            context.DrawGeometry(Brushes.Black, null, textGeometry);
 
             // Draw images
             for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
@@ -95,7 +102,7 @@ namespace PinGen.Rendering.Services
                 }
             }
 
-            // Draw captions
+            // Draw captions with black fill and white outline
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
             {
                 var area = template.CaptionAreas[i];
@@ -107,11 +114,14 @@ namespace PinGen.Rendering.Services
                     24,
                     Brushes.Black,
                     1.0);
-
-                context.DrawText(captionText, new Point(area.X, area.Y));
+                var captionGeometry = captionText.BuildGeometry(new Point(area.X, area.Y));
+                // Draw white outline
+                context.DrawGeometry(null, new Pen(Brushes.White, 2), captionGeometry);
+                // Draw black fill on top
+                context.DrawGeometry(Brushes.Black, null, captionGeometry);
             }
 
-            // Draw footer if exists
+            // Draw footer if exists with black fill and white outline
             if (!string.IsNullOrEmpty(request.Footer) && template.FooterArea.HasValue)
             {
                 var footerArea = template.FooterArea.Value;
@@ -121,9 +131,13 @@ namespace PinGen.Rendering.Services
                     FlowDirection.LeftToRight,
                     new Typeface("Arial"),
                     48,
-                    Brushes.Gray,
+                    Brushes.Black,
                     1.0);
-                context.DrawText(footerText, new Point(footerArea.X, footerArea.Y));
+                var footerGeometry = footerText.BuildGeometry(new Point(footerArea.X, footerArea.Y));
+                // Draw white outline
+                context.DrawGeometry(null, new Pen(Brushes.White, 4), footerGeometry);
+                // Draw black fill on top
+                context.DrawGeometry(Brushes.Black, null, footerGeometry);
             }
 
             context.Close();
