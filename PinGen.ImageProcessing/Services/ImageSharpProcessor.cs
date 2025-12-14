@@ -17,10 +17,9 @@ namespace PinGen.ImageProcessing.Services
             int width = frame.Width;
             int height = frame.Height;
 
-            // Top-to-bottom and bottom-to-top edge removal
+            // Step 1: Remove white edges
             frame.ProcessPixelRows(accessor =>
             {
-                // Top-to-bottom per column
                 for (int x = 0; x < width; x++)
                 {
                     for (int y = 0; y < height; y++)
@@ -29,8 +28,6 @@ namespace PinGen.ImageProcessing.Services
                         if (!IsWhite(p, tolerance)) break;
                         p.A = 0;
                     }
-
-                    // Bottom-to-top
                     for (int y = height - 1; y >= 0; y--)
                     {
                         ref Rgba32 p = ref accessor.GetRowSpan(y)[x];
@@ -38,20 +35,15 @@ namespace PinGen.ImageProcessing.Services
                         p.A = 0;
                     }
                 }
-
-                // Left-to-right per row
                 for (int y = 0; y < height; y++)
                 {
                     var row = accessor.GetRowSpan(y);
-
                     for (int x = 0; x < width; x++)
                     {
                         ref Rgba32 p = ref row[x];
                         if (!IsWhite(p, tolerance)) break;
                         p.A = 0;
                     }
-
-                    // Right-to-left
                     for (int x = width - 1; x >= 0; x--)
                     {
                         ref Rgba32 p = ref row[x];
@@ -61,17 +53,39 @@ namespace PinGen.ImageProcessing.Services
                 }
             });
 
-            // Resize AFTER transparency adjustment
-            image.Mutate(ctx => ctx.Resize(new ResizeOptions
+            // Step 2: Zero out RGB for fully transparent pixels
+            image.ProcessPixelRows(accessor =>
             {
-                Size = new Size(targetWidth, targetHeight),
-                Mode = ResizeMode.Max,
-                Sampler = KnownResamplers.Lanczos3
-            }));
+                for (int y = 0; y < image.Height; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        ref Rgba32 p = ref row[x];
+                        if (p.A == 0)
+                        {
+                            p.R = 0;
+                            p.G = 0;
+                            p.B = 0;
+                        }
+                    }
+                }
+            });
 
-            // Copy pixels into BitmapSource
+            // Step 3: Resize
+            image.Mutate(ctx =>
+            {
+                ctx.Resize(new ResizeOptions
+                {
+                    Size = new Size(targetWidth, targetHeight),
+                    Mode = ResizeMode.Max,
+                    Sampler = KnownResamplers.Lanczos3
+                });
+            });
+
+            // Step 4: Copy pixels in BGR premultiplied format for WPF
             var pixels = new byte[image.Width * image.Height * 4];
-            frame.ProcessPixelRows(accessor =>
+            image.ProcessPixelRows(accessor =>
             {
                 for (int y = 0; y < image.Height; y++)
                 {
@@ -81,12 +95,10 @@ namespace PinGen.ImageProcessing.Services
                         int idx = (y * image.Width + x) * 4;
                         var p = row[x];
 
-                        // Premultiply alpha
-                        float alpha = p.A / 255f;
-                        pixels[idx] = (byte)(p.R * alpha);
-                        pixels[idx + 1] = (byte)(p.G * alpha);
-                        pixels[idx + 2] = (byte)(p.B * alpha);
-                        pixels[idx + 3] = p.A;
+                        pixels[idx] = (byte)((p.B * p.A + 127) / 255); // Blue
+                        pixels[idx + 1] = (byte)((p.G * p.A + 127) / 255); // Green
+                        pixels[idx + 2] = (byte)((p.R * p.A + 127) / 255); // Red
+                        pixels[idx + 3] = p.A;                             // Alpha
                     }
                 }
             });
@@ -107,5 +119,6 @@ namespace PinGen.ImageProcessing.Services
 
         private static bool IsWhite(Rgba32 p, byte tolerance) =>
             p.R >= 255 - tolerance && p.G >= 255 - tolerance && p.B >= 255 - tolerance;
+
     }
 }
