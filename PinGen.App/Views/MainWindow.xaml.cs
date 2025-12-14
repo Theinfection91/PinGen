@@ -34,22 +34,22 @@ namespace PinGen.App
                 // Create a hardcoded PinRequest for testing
                 var request = new PinRequest
                 {
-                    Title = "Hardcoded Test Title",
+                    Title = "This is where the title of the generated output image will go. Here is some more text for testing.",
                     ItemImages = new List<ItemImage>
                     {
                         new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test1.jpg" },
                         new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test2.jpg" },
                         new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test3.jpg" },
                         new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test4.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test5.jpg" }
                     },
                     Captions = new List<string>
                     {
-                        "Caption 1",
-                        "Caption 2",
-                        "Caption 3",
-                        "Caption 4",
+                        "Some text here.",
+                        "Also text will be here too.",
+                        "More text being displayed here.",
                     },
-                    Footer = "Hardcoded Test Footer",
+                    Footer = "Hardcoded Test Footer here, also some more text for testing purposes.",
                 };
 
                 // Get template based on item count (for now, we use a hardcoded provider that requires four)

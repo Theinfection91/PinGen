@@ -1,17 +1,91 @@
-﻿using SixLabors.ImageSharp;
+﻿using PinGen.ImageProcessing.Interfaces;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System.IO;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PinGen.ImageProcessing.Interfaces;
 
 namespace PinGen.ImageProcessing.Services
 {
     public class ImageSharpProcessor : IImageProcessor
     {
-        public BitmapSource RemoveWhiteBackground(string imagePath, byte tolerance = 15)
-        {
-            using Image<Rgba32> image = Image.Load<Rgba32>(imagePath);
+        //public BitmapSource RemoveWhiteBackground(string imagePath, byte tolerance = 15)
+        //{
+        //    using Image<Rgba32> image = Image.Load<Rgba32>(imagePath);
 
+        //    image.ProcessPixelRows(accessor =>
+        //    {
+        //        for (int y = 0; y < accessor.Height; y++)
+        //        {
+        //            var row = accessor.GetRowSpan(y);
+        //            for (int x = 0; x < row.Length; x++)
+        //            {
+        //                ref Rgba32 pixel = ref row[x];
+
+        //                // If pixel is near white, make it transparent
+        //                if (pixel.R >= (255 - tolerance) &&
+        //                    pixel.G >= (255 - tolerance) &&
+        //                    pixel.B >= (255 - tolerance))
+        //                {
+        //                    pixel.A = 0;
+        //                }
+        //            }
+        //        }
+        //    });
+
+        //    using var ms = new MemoryStream();
+        //    image.SaveAsPng(ms);
+        //    ms.Position = 0;
+
+        //    var bmp = new BitmapImage();
+        //    bmp.BeginInit();
+        //    bmp.StreamSource = ms;
+        //    bmp.CacheOption = BitmapCacheOption.OnLoad;
+        //    bmp.EndInit();
+        //    bmp.Freeze();
+
+        //    return bmp;
+        //}
+
+        //public BitmapSource LoadAndPrepare(string path, int targetWidth, int targetHeight)
+        //{
+        //    using var image = Image.Load<Rgba32>(path);
+
+        //    image.Mutate(x => x.Resize(new ResizeOptions
+        //    {
+        //        Size = new Size(targetWidth, targetHeight),
+        //        Mode = ResizeMode.Max,
+        //        Sampler = KnownResamplers.Lanczos3 // IMPORTANT
+        //    }));
+
+        //    return ToBitmapSource(image);
+        //}
+
+        private static BitmapSource ToBitmapSource(Image<Rgba32> image)
+        {
+            var pixels = new byte[image.Width * image.Height * 4];
+            image.CopyPixelDataTo(pixels);
+
+            var bmp = BitmapSource.Create(
+                image.Width,
+                image.Height,
+                96,
+                96,
+                PixelFormats.Pbgra32,
+                null,
+                pixels,
+                image.Width * 4);
+
+            bmp.Freeze();
+            return bmp;
+        }
+
+        public BitmapSource LoadPrepareAndRemoveWhite(string path, int targetWidth, int targetHeight, byte tolerance = 15)
+        {
+            using var image = Image.Load<Rgba32>(path);
+
+            // Remove white background FIRST
             image.ProcessPixelRows(accessor =>
             {
                 for (int y = 0; y < accessor.Height; y++)
@@ -19,31 +93,35 @@ namespace PinGen.ImageProcessing.Services
                     var row = accessor.GetRowSpan(y);
                     for (int x = 0; x < row.Length; x++)
                     {
-                        ref Rgba32 pixel = ref row[x];
+                        ref Rgba32 p = ref row[x];
 
-                        // If pixel is near white, make it transparent
-                        if (pixel.R >= (255 - tolerance) &&
-                            pixel.G >= (255 - tolerance) &&
-                            pixel.B >= (255 - tolerance))
+                        // Calculate "whiteness" as average of RGB
+                        float whiteness = (p.R + p.G + p.B) / (3f * 255f);
+
+                        // Remove nearly white pixels with feathering
+                        if (whiteness > 0.9f)
                         {
-                            pixel.A = 0;
+                            // Proportional alpha reduction
+                            float alphaFactor = (1f - (whiteness - 0.9f) / 0.1f);
+                            p.A = (byte)(p.A * Math.Clamp(alphaFactor, 0f, 1f));
                         }
                     }
                 }
             });
 
-            using var ms = new MemoryStream();
-            image.SaveAsPng(ms);
-            ms.Position = 0;
+            // Resize AFTER transparency exists
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new Size(targetWidth, targetHeight),
+                Mode = ResizeMode.Max,
+                Sampler = KnownResamplers.Lanczos3
+            }));
 
-            var bmp = new BitmapImage();
-            bmp.BeginInit();
-            bmp.StreamSource = ms;
-            bmp.CacheOption = BitmapCacheOption.OnLoad;
-            bmp.EndInit();
-            bmp.Freeze();
+            image.Mutate(x => x.GaussianBlur(0.5f));
 
-            return bmp;
+
+            // Convert once
+            return ToBitmapSource(image);
         }
     }
 }
