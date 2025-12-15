@@ -94,10 +94,10 @@ namespace PinGen.ImageProcessing.Services
                         int idx = (y * image.Width + x) * 4;
                         var p = row[x];
 
-                        pixels[idx] = (byte)((p.B * p.A + 127) / 255); // Blue
-                        pixels[idx + 1] = (byte)((p.G * p.A + 127) / 255); // Green
-                        pixels[idx + 2] = (byte)((p.R * p.A + 127) / 255); // Red
-                        pixels[idx + 3] = p.A;                             // Alpha
+                        pixels[idx] = (byte)((p.B * p.A + 127) / 255);
+                        pixels[idx + 1] = (byte)((p.G * p.A + 127) / 255);
+                        pixels[idx + 2] = (byte)((p.R * p.A + 127) / 255);
+                        pixels[idx + 3] = p.A;
                     }
                 }
             });
