@@ -34,7 +34,7 @@ namespace PinGen.Rendering.Services
                 Path.Combine(appBase, "Assets", "Fonts", "horizon.otf"),
                 "Horizon");
         }
-       
+
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
         {
             var bitmap = new RenderTargetBitmap(
@@ -58,10 +58,28 @@ namespace PinGen.Rendering.Services
             context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
 
             // Title (black fill + white stroke)
-            DrawOutlinedText(context, request.Title, template.TitleArea.X, template.TitleArea.Y, 48, template.TitleArea.Width, Brushes.Black, Brushes.White, 4, TextAlignment.Center);
+            DrawOutlinedTextAutoFit(
+                context,
+                request.Title,
+                template.TitleArea,
+                64,
+                24,
+                Brushes.Black,
+                Brushes.White,
+                4,
+                TextAlignment.Center);
 
             // Subtitle (black fill + white stroke)
-            DrawOutlinedText(context, request.Subtitle, template.SubtitleArea.X, template.SubtitleArea.Y, 32, template.SubtitleArea.Width, Brushes.Black, Brushes.White, 2, TextAlignment.Center);
+            DrawOutlinedTextAutoFit(
+                context,
+                request.Subtitle,
+                template.SubtitleArea,
+                32,
+                24,
+                Brushes.Black,
+                Brushes.White,
+                2,
+                TextAlignment.Center);
 
             // Images
             for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
@@ -114,41 +132,82 @@ namespace PinGen.Rendering.Services
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
             {
                 var area = template.CaptionAreas[i];
-                DrawOutlinedText(context, request.Captions[i], area.X, area.Y, 24, area.Width, Brushes.Black, Brushes.White, 2, TextAlignment.Left);
+                DrawOutlinedTextAutoFit(
+                    context,
+                    request.Captions[i],
+                    area,
+                    24,
+                    12,
+                    Brushes.Black,
+                    Brushes.White,
+                    2,
+                    TextAlignment.Left);
             }
 
             // Footer
             if (!string.IsNullOrEmpty(request.Footer) && template.FooterArea.HasValue)
             {
                 var footerArea = template.FooterArea.Value;
-                DrawOutlinedText(context, request.Footer, footerArea.X, footerArea.Y, 48, footerArea.Width, Brushes.Black, Brushes.White, 4, TextAlignment.Center);
+                DrawOutlinedTextAutoFit(
+                    context,
+                    request.Footer,
+                    footerArea,
+                    48,
+                    18,
+                    Brushes.Black,
+                    Brushes.White,
+                    4,
+                    TextAlignment.Center);
             }
 
+            // Finalize
             context.Close();
             bitmap.Render(visual);
             bitmap.Freeze();
             return bitmap;
         }
 
-
-        private static void DrawOutlinedText(DrawingContext ctx, string text, double x, double y, double size, double maxWidth, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
+        private static void DrawOutlinedTextAutoFit(DrawingContext ctx, string text, Rect area, double maxFontSize, double minFontSize, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
         {
-            var ft = new FormattedText(
-                text,
-                System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                defaultFont,
-                size,
-                fill,
-                1.0)
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            FormattedText ft = null;
+            double fontSize = maxFontSize;
+
+            // Decrease font size until it fits within area
+            while (fontSize >= minFontSize)
             {
-                MaxTextWidth = maxWidth,
-                TextAlignment = alignment
-            };
+                ft = new FormattedText(
+                    text,
+                    System.Globalization.CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    defaultFont,
+                    fontSize,
+                    fill,
+                    1.0)
+                {
+                    MaxTextWidth = area.Width,
+                    TextAlignment = alignment,
+                    Trimming = TextTrimming.None
+                };
+                // Check if it fits, if so, break
+                if (ft.Height <= area.Height)
+                    break;
+                // Otherwise, reduce font size and try again
+                fontSize -= 1;
+            }
 
-            // Use BuildGeometry for outline
-            var geo = ft.BuildGeometry(new Point(x, y));
+            if (ft == null || fontSize < minFontSize)
+                return;
 
+            // Center vertically within area
+            var origin = new Point(
+                area.X,
+                area.Y + (area.Height - ft.Height) / 2);
+
+            // Build geometry and draw with stroke and fill
+            var geo = ft.BuildGeometry(origin);
             ctx.DrawGeometry(null, new Pen(stroke, strokeWidth), geo);
             ctx.DrawGeometry(fill, null, geo);
         }
