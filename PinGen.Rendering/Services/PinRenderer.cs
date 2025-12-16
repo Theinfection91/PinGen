@@ -194,6 +194,13 @@ namespace PinGen.Rendering.Services
                 // Check if it fits, if so, break
                 if (ft.Height <= area.Height)
                     break;
+
+                if (fontSize == minFontSize)
+                {
+                    ft.Trimming = TextTrimming.CharacterEllipsis;
+                    break;
+                }
+
                 // Otherwise, reduce font size and try again
                 fontSize -= 1;
             }
