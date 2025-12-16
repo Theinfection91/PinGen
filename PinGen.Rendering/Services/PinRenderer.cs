@@ -60,6 +60,9 @@ namespace PinGen.Rendering.Services
             // Title (black fill + white stroke)
             DrawOutlinedText(context, request.Title, template.TitleArea.X, template.TitleArea.Y, 48, template.TitleArea.Width, Brushes.Black, Brushes.White, 4, TextAlignment.Center);
 
+            // Subtitle (black fill + white stroke)
+            DrawOutlinedText(context, request.Subtitle, template.SubtitleArea.X, template.SubtitleArea.Y, 32, template.SubtitleArea.Width, Brushes.Black, Brushes.White, 2, TextAlignment.Center);
+
             // Images
             for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
             {

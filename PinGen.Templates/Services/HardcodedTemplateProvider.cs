@@ -15,7 +15,8 @@ namespace PinGen.Templates.Services
                 Height = 1500,
 
                 // Title and Footer dimensions were measured from example of what output should look like and will likely be the standard for most templates
-                TitleArea = new Rect(25, 30, 950, 275),
+                TitleArea = new Rect(25, 30, 950, 125),
+                SubtitleArea = new Rect(25, 150, 950, 150),
                 FooterArea = new Rect(25, 1325, 950, 140),
 
                 TemplateSlots = new List<TemplateSlot>

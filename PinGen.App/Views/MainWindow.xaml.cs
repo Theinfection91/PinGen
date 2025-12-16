@@ -34,7 +34,8 @@ namespace PinGen.App
                 // Create a hardcoded PinRequest for testing
                 var request = new PinRequest
                 {
-                    Title = "Tiny Closet, Big Wardrobe 5 Space-Saving Hangers & Organizers from Amazon",
+                    Title = "Tiny Closet,\nBig Wardrobe",
+                    Subtitle = "5 Space-Saving Hangers & Organizers from Amazon",
                     ItemImages = new List<ItemImage>
                     {
                         new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test1.jpg" },
