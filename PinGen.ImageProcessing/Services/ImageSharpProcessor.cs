@@ -16,7 +16,7 @@ namespace PinGen.ImageProcessing.Services
             int width = frame.Width;
             int height = frame.Height;
 
-            // Step 1: Remove white edges
+            // Remove white edges
             frame.ProcessPixelRows(accessor =>
             {
                 for (int x = 0; x < width; x++)
@@ -52,7 +52,7 @@ namespace PinGen.ImageProcessing.Services
                 }
             });
 
-            // Step 2: Zero out RGB for fully transparent pixels
+            // Zero out RGB for fully transparent pixels
             image.ProcessPixelRows(accessor =>
             {
                 for (int y = 0; y < image.Height; y++)
@@ -71,7 +71,7 @@ namespace PinGen.ImageProcessing.Services
                 }
             });
 
-            // Step 3: Resize
+            // Resize
             image.Mutate(ctx =>
             {
                 ctx.Resize(new ResizeOptions
@@ -82,7 +82,7 @@ namespace PinGen.ImageProcessing.Services
                 });
             });
 
-            // Step 4: Copy pixels in BGR premultiplied format for WPF
+            // Copy pixels in BGR premultiplied format for WPF
             var pixels = new byte[image.Width * image.Height * 4];
             image.ProcessPixelRows(accessor =>
             {
@@ -102,6 +102,7 @@ namespace PinGen.ImageProcessing.Services
                 }
             });
 
+            // Create the BitmapSource for WPF
             var bmp = BitmapSource.Create(
                 image.Width,
                 image.Height,
