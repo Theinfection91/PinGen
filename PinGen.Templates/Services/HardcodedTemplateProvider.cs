@@ -29,9 +29,9 @@ namespace PinGen.Templates.Services
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(575, 350, 400, 450),
+                        Bounds = new Rect(575, 300, 400, 450),
                         ShowNumber = true,
-                        NumberArea = new Rect(825, 525, 80, 80)
+                        NumberArea = new Rect(600, 375, 80, 80)
                     },
                     new TemplateSlot
                     {
@@ -43,7 +43,7 @@ namespace PinGen.Templates.Services
                     {
                         Bounds = new Rect(40, 865, 400, 450),
                         ShowNumber = true,
-                        NumberArea = new Rect(290, 1045, 80, 80)
+                        NumberArea = new Rect(200, 920, 80, 80)
                     },
                     new TemplateSlot
                     {
@@ -55,8 +55,8 @@ namespace PinGen.Templates.Services
 
                 CaptionAreas = new List<Rect>
                 {
-                    new Rect(80, 690, 380, 30),
-                    new Rect(620, 660, 360, 30),
+                    new Rect(45, 850, 380, 30),
+                    new Rect(620, 775, 360, 30),
                     new Rect(280, 1230, 360, 30)
                 }
             };

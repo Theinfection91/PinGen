@@ -38,17 +38,17 @@ namespace PinGen.App
                     Subtitle = "5 Space-Saving Hangers & Organizers from Amazon",
                     ItemImages = new List<ItemImage>
                     {
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test1.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test2.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test3.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test4.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test5.jpg" }
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb1.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb2.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb3.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb4.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb5.jpg" }
                     },
                     Captions = new List<string>
                     {
                         "Some text here.",
-                        "Also text will be here too.",
-                        "More text being displayed here.",
+                        "Also text will here too.",
+                        "Final text here",
                     },
                     Footer = "Hardcoded Test Footer here, also some more text for testing purposes.",
                 };
