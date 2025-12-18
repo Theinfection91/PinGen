@@ -55,9 +55,9 @@ namespace PinGen.Templates.Services
 
                 CaptionAreas = new List<Rect>
                 {
-                    new Rect(45, 850, 380, 30),
-                    new Rect(620, 775, 360, 30),
-                    new Rect(280, 1230, 360, 30)
+                    new Rect(80, 850, 360, 30),
+                    new Rect(600, 680, 360, 30),
+                    new Rect(530, 1270, 360, 30)
                 }
             };
         }
