@@ -47,13 +47,13 @@ namespace PinGen.App
                     Captions = new List<string>
                     {
                         "Some text here.",
-                        "Also text will here too.",
+                        "Also text will here be too.",
                         "Final text here",
                     },
                     Footer = "Hardcoded Test Footer here, also some more text for testing purposes.",
                 };
 
-                // Get template based on item count (for now, we use a hardcoded provider that requires four)
+                // Get template based on item count (for now, we use a hardcoded provider that requires five)
                 var templateProvider = new HardcodedTemplateProvider();
                 var template = templateProvider.GetTemplate(request.ItemImages.Count);
 
