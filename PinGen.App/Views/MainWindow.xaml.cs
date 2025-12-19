@@ -38,19 +38,19 @@ namespace PinGen.App
                     Subtitle = "5 Space-Saving Hangers & Organizers from Amazon",
                     ItemImages = new List<ItemImage>
                     {
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test1.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test2.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test3.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test4.jpg" },
-                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test5.jpg" }
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb1.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb2.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb3.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb4.jpg" },
+                        new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\testb5.jpg" }
                     },
                     Captions = new List<string>
                     {
-                        "Some text here.",
-                        "Also text will here be too.",
-                        "Final text here",
+                        "Some text displayed here.",
+                        "We have some text here.",
+                        "Final text will be here.",
                     },
-                    Footer = "Test Footer Here.",
+                    Footer = "Test Footer Will Be Here.",
                 };
 
                 // Get template based on item count (for now, we use a hardcoded provider that requires five)

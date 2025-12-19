@@ -101,25 +101,31 @@ namespace PinGen.Rendering.Services
                 {
                     var numberArea = slot.NumberArea.Value;
 
-                    // Circle background
-                    context.DrawEllipse(
+                    // Create two number texts offset for 3d effect
+                    var numberTextShadow = new FormattedText(
+                        (i + 1).ToString(),
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        FlowDirection.LeftToRight,
+                        defaultFont,
+                        72,
                         Brushes.Black,
-                        null,
-                        new Point(
-                            numberArea.X + numberArea.Width / 2,
-                            numberArea.Y + numberArea.Height / 2),
-                        numberArea.Width / 2,
-                        numberArea.Height / 2);
-
+                        1.0);
                     var numberText = new FormattedText(
                         (i + 1).ToString(),
                         System.Globalization.CultureInfo.InvariantCulture,
                         FlowDirection.LeftToRight,
                         defaultFont,
-                        28,
+                        64,
                         Brushes.White,
                         1.0);
 
+                    // Draw shadow offset
+                    context.DrawText(
+                        numberTextShadow,
+                        new Point(
+                            numberArea.X + (numberArea.Width - numberTextShadow.Width) / 2 + 6,
+                            numberArea.Y + (numberArea.Height - numberTextShadow.Height) / 2));
+                    // Draw main text
                     context.DrawText(
                         numberText,
                         new Point(
@@ -141,7 +147,7 @@ namespace PinGen.Rendering.Services
                     Brushes.Black,
                     Brushes.White,
                     2,
-                    TextAlignment.Left);
+                    TextAlignment.Center);
             }
 
             // Footer
