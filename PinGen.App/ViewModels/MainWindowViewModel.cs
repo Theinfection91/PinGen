@@ -61,12 +61,16 @@ namespace PinGen.App.ViewModels
             Captions.Add("");
 
             // Test images
-            ItemImagePaths.Add("Assets/TestImages/test1.jpg");
-            ItemImagePaths.Add("Assets/TestImages/test2.jpg");
-            ItemImagePaths.Add("Assets/TestImages/test3.jpg");
-            ItemImagePaths.Add("Assets/TestImages/test4.jpg");
-            ItemImagePaths.Add("Assets/TestImages/test5.jpg");
+            //ItemImagePaths.Add("Assets/TestImages/test1.jpg");
+            //ItemImagePaths.Add("Assets/TestImages/test2.jpg");
+            //ItemImagePaths.Add("Assets/TestImages/test3.jpg");
+            //ItemImagePaths.Add("Assets/TestImages/test4.jpg");
+            //ItemImagePaths.Add("Assets/TestImages/test5.jpg");
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private void Render()
         {
@@ -84,11 +88,16 @@ namespace PinGen.App.ViewModels
 
             var outputPath = Path.Combine("Output", $"pin_{DateTime.Now:HH-mm-ss}.png");
             _fileSaver.Save(bitmap, outputPath);
+
+            ItemImagePaths.Clear();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        public void AddImagePath(string path)
+        {
+            if (!ItemImagePaths.Contains(path))
+                ItemImagePaths.Add(path);
+        }
+
     }
 
 }
