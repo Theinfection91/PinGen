@@ -87,6 +87,10 @@ namespace PinGen.App.ViewModels
             var bitmap = _pinRenderer.Render(request, template);
 
             var outputPath = Path.Combine("Output", $"pin_{DateTime.Now:HH-mm-ss}.png");
+            if (!Directory.Exists("Output"))
+            {
+                Directory.CreateDirectory("Output");
+            }
             _fileSaver.Save(bitmap, outputPath);
 
             ItemImagePaths.Clear();
