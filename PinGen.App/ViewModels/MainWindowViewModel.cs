@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Input;
 
@@ -15,14 +16,32 @@ namespace PinGen.App.ViewModels
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        public string Title { get; set; }
-        public string Subtitle { get; set; }
-        public string Footer { get; set; }
+        private string _title;
+        private string _subtitle;
+        private string _footer;
+
+        public string Title
+        {
+            get => _title;
+            set { _title = value; OnPropertyChanged(nameof(Title)); }
+        }
+
+        public string Subtitle
+        {
+            get => _subtitle;
+            set { _subtitle = value; OnPropertyChanged(nameof(Subtitle)); }
+        }
+
+        public string Footer
+        {
+            get => _footer;
+            set { _footer = value; OnPropertyChanged(nameof(Footer)); }
+        }
 
         public ObservableCollection<string> ItemImagePaths { get; } = new();
         public ObservableCollection<string> Captions { get; } = new();
 
-        public ICommand RenderCommand { get; set; }
+        public ICommand RenderCommand { get; }
 
         private readonly IPinRenderer _pinRenderer;
         private readonly ITemplateProvider _templateProvider;
@@ -36,13 +55,14 @@ namespace PinGen.App.ViewModels
 
             RenderCommand = new RelayCommand(Render);
 
-            //new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test1.jpg" },
-            //            //new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test2.jpg" },
-            //            new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test3.jpg" },
-            //            new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test4.jpg" },
-            //            new ItemImage { SourcePath = "C:\\Chase\\CSharpProjects\\PinGen\\PinGen.App\\Assets\\TestImages\\test5.jpg" }
-            // Add some default test data for item image paths
+            // Seed captions
+            Captions.Add("");
+            Captions.Add("");
+            Captions.Add("");
+
+            // Test images
             ItemImagePaths.Add("Assets/TestImages/test1.jpg");
+            ItemImagePaths.Add("Assets/TestImages/test2.jpg");
             ItemImagePaths.Add("Assets/TestImages/test3.jpg");
             ItemImagePaths.Add("Assets/TestImages/test4.jpg");
             ItemImagePaths.Add("Assets/TestImages/test5.jpg");
@@ -67,5 +87,8 @@ namespace PinGen.App.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+
 }

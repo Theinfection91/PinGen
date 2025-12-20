@@ -84,31 +84,31 @@ namespace PinGen.Templates.Services
                 {
                     new TemplateSlot
                     {
-                        Bounds = new Rect(30, 310, 400, 500),
+                        Bounds = new Rect(30, 310, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(310, 370, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(575, 300, 400, 500),
+                        Bounds = new Rect(575, 300, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(600, 375, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(320, 650, 400, 500),
+                        Bounds = new Rect(320, 650, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(370, 635, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(40, 950, 400, 500),
+                        Bounds = new Rect(40, 950, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(410, 1070, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(560, 850, 400, 500),
+                        Bounds = new Rect(560, 850, 400, 450),
                         ShowNumber = true,
                         NumberArea = new Rect(810, 845, 80, 80)
                     },
