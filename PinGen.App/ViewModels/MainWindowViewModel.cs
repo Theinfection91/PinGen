@@ -76,11 +76,22 @@ namespace PinGen.App.ViewModels
         {
             var request = new PinRequest
             {
-                Title = Title,
-                Subtitle = Subtitle,
-                Footer = Footer,
+                //Title = Title,
+                //Subtitle = Subtitle,
+                //Footer = Footer,
                 ItemImages = ItemImagePaths.Select(p => new ItemImage { SourcePath = p }).ToList(),
-                Captions = Captions.ToList()
+                //Captions = Captions.ToList()
+
+                // Need hardcoded data for testing that Ill comment in and out later
+                Title = "Sample Pin Title Here,\nLine Breaks When Using Enter",
+                Subtitle = "This is a subtitle for the sample pin being generated.",
+                Footer = "Bunch stuff here in the footer area that'll be optional later.",
+                Captions = new List<string>
+                {
+                    "Snappy quick zinger here.",
+                    "Get this fuck face.",
+                    "Super happy fun time go."
+                }
             };
 
             var template = _templateProvider.GetTemplate(request.ItemImages.Count);
@@ -93,7 +104,7 @@ namespace PinGen.App.ViewModels
             }
             _fileSaver.Save(bitmap, outputPath);
 
-            ItemImagePaths.Clear();
+            //ItemImagePaths.Clear();
         }
 
         public void AddImagePath(string path)

@@ -92,41 +92,40 @@ namespace PinGen.Templates.Services
                 {
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 300, 300, 400),
+                        Bounds = new Rect(25, 280, 360, 420),
                         ShowNumber = true,
-                        NumberArea = new Rect(235, 320, 70, 70)
+                        NumberArea = new Rect(275, 300, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(335, 300, 300, 400),
+                        Bounds = new Rect(615, 280, 360, 420),
                         ShowNumber = true,
-                        NumberArea = new Rect(545, 320, 70, 70)
+                        NumberArea = new Rect(865, 300, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(645, 300, 300, 400),
+                        Bounds = new Rect(300, 540, 360, 520),
                         ShowNumber = true,
-                        NumberArea = new Rect(855, 320, 70, 70)
+                        NumberArea = new Rect(620, 560, 90, 90)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 750, 450, 430),
+                        Bounds = new Rect(25, 900, 360, 420),
                         ShowNumber = true,
-                        NumberArea = new Rect(375, 770, 70, 70)
+                        NumberArea = new Rect(275, 1000, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(525, 750, 450, 430),
+                        Bounds = new Rect(615, 900, 360, 420),
                         ShowNumber = true,
-                        NumberArea = new Rect(875, 770, 70, 70)
+                        NumberArea = new Rect(865, 1000, 80, 80)
                     },
                 },
                 CaptionAreas = new List<Rect>
                 {
-                    new Rect(25, 270, 925, 30),
-                    new Rect(25, 710, 925, 30),
-                    new Rect(25, 1190, 925, 30),
-                    new Rect(25, 1240, 925, 30)
+                    new Rect(25, 250, 925, 30),
+                    new Rect(310, 720, 925, 30),
+                    new Rect(25, 1300, 925, 30)
                 }
             };
         }
@@ -142,46 +141,46 @@ namespace PinGen.Templates.Services
                 {
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 300, 300, 420),
+                        Bounds = new Rect(25, 300, 310, 470),
                         ShowNumber = true,
-                        NumberArea = new Rect(235, 330, 70, 70)
+                        NumberArea = new Rect(250, 330, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(345, 300, 300, 420),
+                        Bounds = new Rect(345, 300, 310, 470),
                         ShowNumber = true,
-                        NumberArea = new Rect(555, 330, 70, 70)
+                        NumberArea = new Rect(570, 330, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(665, 300, 300, 420),
+                        Bounds = new Rect(665, 300, 310, 470),
                         ShowNumber = true,
-                        NumberArea = new Rect(875, 330, 70, 70)
+                        NumberArea = new Rect(890, 330, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 780, 300, 420),
+                        Bounds = new Rect(25, 720, 310, 470),
                         ShowNumber = true,
-                        NumberArea = new Rect(235, 810, 70, 70)
+                        NumberArea = new Rect(250, 750, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(345, 780, 300, 420),
+                        Bounds = new Rect(345, 720, 310, 470),
                         ShowNumber = true,
-                        NumberArea = new Rect(555, 810, 70, 70)
+                        NumberArea = new Rect(570, 750, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(665, 780, 300, 420),
+                        Bounds = new Rect(665, 720, 310, 470),
                         ShowNumber = true,
-                        NumberArea = new Rect(875, 810, 70, 70)
+                        NumberArea = new Rect(890, 750, 85, 85)
                     },
                 },
                 CaptionAreas = new List<Rect>
                 {
                     new Rect(25, 270, 925, 30),
-                    new Rect(25, 730, 925, 30),
-                    new Rect(25, 1210, 925, 30)
+                    new Rect(25, 690, 925, 30),
+                    new Rect(25, 1195, 925, 30)
                 }
             };
         }
@@ -197,53 +196,52 @@ namespace PinGen.Templates.Services
                 {
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 300, 220, 360),
+                        Bounds = new Rect(25, 300, 235, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(165, 320, 60, 60)
+                        NumberArea = new Rect(380, 320, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(255, 300, 220, 360),
+                        Bounds = new Rect(265, 300, 235, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(395, 320, 60, 60)
+                        NumberArea = new Rect(620, 320, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(485, 300, 220, 360),
+                        Bounds = new Rect(505, 300, 235, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(625, 320, 60, 60)
+                        NumberArea = new Rect(860, 320, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(715, 300, 220, 360),
+                        Bounds = new Rect(745, 300, 235, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(855, 320, 60, 60)
+                        NumberArea = new Rect(900, 320, 80, 80)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(135, 730, 260, 360),
+                        Bounds = new Rect(60, 740, 310, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(315, 750, 60, 60)
+                        NumberArea = new Rect(280, 760, 90, 90)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(405, 730, 260, 360),
+                        Bounds = new Rect(360, 740, 310, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(585, 750, 60, 60)
+                        NumberArea = new Rect(580, 760, 90, 90)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(675, 730, 260, 360),
+                        Bounds = new Rect(660, 740, 310, 400),
                         ShowNumber = true,
-                        NumberArea = new Rect(855, 750, 60, 60)
+                        NumberArea = new Rect(880, 760, 90, 90)
                     },
                 },
                 CaptionAreas = new List<Rect>
                 {
                     new Rect(25, 270, 925, 30),
-                    new Rect(25, 670, 925, 30),
-                    new Rect(25, 1100, 925, 30),
-                    new Rect(25, 1170, 925, 30)
+                    new Rect(25, 710, 925, 30),
+                    new Rect(25, 1145, 925, 30)
                 }
             };
         }
@@ -259,62 +257,60 @@ namespace PinGen.Templates.Services
                 {
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 300, 220, 360),
+                        Bounds = new Rect(25, 300, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(165, 320, 60, 60)
+                        NumberArea = new Rect(170, 320, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(255, 300, 220, 360),
+                        Bounds = new Rect(265, 300, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(395, 320, 60, 60)
+                        NumberArea = new Rect(410, 320, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(485, 300, 220, 360),
+                        Bounds = new Rect(505, 300, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(625, 320, 60, 60)
+                        NumberArea = new Rect(650, 320, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(715, 300, 220, 360),
+                        Bounds = new Rect(745, 300, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(855, 320, 60, 60)
+                        NumberArea = new Rect(890, 320, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(25, 730, 220, 360),
+                        Bounds = new Rect(25, 700, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(165, 750, 60, 60)
+                        NumberArea = new Rect(170, 720, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(255, 730, 220, 360),
+                        Bounds = new Rect(265, 700, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(395, 750, 60, 60)
+                        NumberArea = new Rect(410, 720, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(485, 730, 220, 360),
+                        Bounds = new Rect(505, 700, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(625, 750, 60, 60)
+                        NumberArea = new Rect(650, 720, 85, 85)
                     },
                     new TemplateSlot
                     {
-                        Bounds = new Rect(715, 730, 220, 360),
+                        Bounds = new Rect(745, 700, 230, 380),
                         ShowNumber = true,
-                        NumberArea = new Rect(855, 750, 60, 60)
+                        NumberArea = new Rect(890, 720, 85, 85)
                     },
                 },
                 CaptionAreas = new List<Rect>
                 {
                     new Rect(25, 270, 925, 30),
                     new Rect(25, 670, 925, 30),
-                    new Rect(25, 1100, 925, 30),
-                    new Rect(25, 1140, 925, 30)
+                    new Rect(25, 1100, 925, 30)
                 }
             };
         }
     }
 }
-                        
