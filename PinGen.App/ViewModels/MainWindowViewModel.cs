@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PinGen.App.ViewModels
@@ -74,37 +75,47 @@ namespace PinGen.App.ViewModels
 
         private void Render()
         {
-            var request = new PinRequest
+            try
             {
-                //Title = Title,
-                //Subtitle = Subtitle,
-                //Footer = Footer,
-                ItemImages = ItemImagePaths.Select(p => new ItemImage { SourcePath = p }).ToList(),
-                //Captions = Captions.ToList()
-
-                // Need hardcoded data for testing that Ill comment in and out later
-                Title = "Sample Pin Title Here,\nLine Breaks When Using Enter",
-                Subtitle = "This is a subtitle for the sample pin being generated.",
-                Footer = "Bunch stuff here in the footer area that'll be optional later.",
-                Captions = new List<string>
+                var request = new PinRequest
                 {
-                    "Snappy quick zinger here.",
-                    "Get this fuck face.",
-                    "Super happy fun time go."
+                    Title = Title,
+                    Subtitle = Subtitle,
+                    Footer = Footer,
+                    ItemImages = ItemImagePaths.Select(p => new ItemImage { SourcePath = p }).ToList(),
+                    Captions = Captions.ToList()
+
+                    // Need hardcoded data for testing that Ill comment in and out later
+                    //Title = "Sample Pin Title Here,\nLine Breaks When Using Enter",
+                    //Subtitle = "This is a subtitle for the sample pin being generated.",
+                    //Footer = "Bunch stuff here in the footer area that'll be optional later.",
+                    //ItemImages = ItemImagePaths.Select(p => new ItemImage { SourcePath = p }).ToList(),
+                    //Captions = new List<string>
+                    //{
+                    //    "Snappy quick zinger here.",
+                    //    "You gotta freaking get it.",
+                    //    "Omfg it's just amazing."
+                    //}
+                };
+
+                var template = _templateProvider.GetTemplate(request.ItemImages.Count);
+                var bitmap = _pinRenderer.Render(request, template);
+
+                var outputPath = Path.Combine("Output", $"pin_{DateTime.Now:HH-mm-ss}.png");
+                if (!Directory.Exists("Output"))
+                {
+                    Directory.CreateDirectory("Output");
                 }
-            };
+                _fileSaver.Save(bitmap, outputPath);
 
-            var template = _templateProvider.GetTemplate(request.ItemImages.Count);
-            var bitmap = _pinRenderer.Render(request, template);
-
-            var outputPath = Path.Combine("Output", $"pin_{DateTime.Now:HH-mm-ss}.png");
-            if (!Directory.Exists("Output"))
-            {
-                Directory.CreateDirectory("Output");
+                //ItemImagePaths.Clear();
+                MessageBox.Show($"Pin board generated and saved to {outputPath}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            _fileSaver.Save(bitmap, outputPath);
-
-            //ItemImagePaths.Clear();
+            catch (NotImplementedException ex)
+            {
+                // Open error message box
+                MessageBox.Show($"Feature not implemented: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void AddImagePath(string path)
@@ -113,6 +124,16 @@ namespace PinGen.App.ViewModels
                 ItemImagePaths.Add(path);
         }
 
+        public void ClearAllText()
+        {
+            Title = string.Empty;
+            Subtitle = string.Empty;
+            Footer = string.Empty;
+            Captions.Clear();
+            Captions.Add("");
+            Captions.Add("");
+            Captions.Add("");
+        }
     }
 
 }

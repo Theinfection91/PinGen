@@ -51,5 +51,15 @@ namespace PinGen.App
                     (DataContext as MainWindowViewModel)?.AddImagePath(path);
             }
         }
+
+        private void ClearItemImages_Click(object sender, RoutedEventArgs e)
+        {
+            (DataContext as MainWindowViewModel)?.ItemImagePaths.Clear();
+        }
+
+        private void ClearAllText_Click(object sender, RoutedEventArgs e)
+        {
+            (DataContext as MainWindowViewModel)?.ClearAllText();
+        }
     }
 }
