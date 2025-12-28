@@ -6,7 +6,6 @@ using PinGen.Rendering.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
