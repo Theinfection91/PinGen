@@ -3,10 +3,113 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PinGen.App.Views"
+        xmlns:viewmodels="clr-namespace:PinGen.App.ViewModels"
         mc:Ignorable="d"
-        Title="AwakenWindow" Height="450" Width="800">
-    <Grid>
-        
+        d:DataContext="{d:DesignInstance Type=viewmodels:AwakenWindowViewModel}"
+        Title="PinGen"
+        Width="1440"
+        Height="768"
+        MinWidth="1024"
+        MinHeight="600">
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="250" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Column 0: Text Inputs -->
+        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+            <TextBlock Text="Title"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4" />
+            <TextBox AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60"
+                     Margin="0,0,0,12" />
+
+            <TextBlock Text="Subtitle"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4" />
+            <TextBox AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60"
+                     Margin="0,0,0,12" />
+
+            <TextBlock Text="Captions"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4" />
+            <TextBox TextWrapping="Wrap"
+                     Margin="0,0,0,4" />
+            <TextBox TextWrapping="Wrap"
+                     Margin="0,0,0,4" />
+            <TextBox TextWrapping="Wrap"
+                     Margin="0,0,0,12" />
+
+            <TextBlock Text="Footer"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4" />
+            <TextBox AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="60"
+                     Margin="0,0,0,12" />
+
+            <Button Content="Clear All Text"
+                    HorizontalAlignment="Left"
+                    Padding="12,6" />
+        </StackPanel>
+
+        <!-- Column 1: Preview Area -->
+        <Border Grid.Column="1"
+                Background="#1a1a1a"
+                BorderBrush="#333"
+                BorderThickness="1"
+                Margin="0,0,16,0">
+            <Grid>
+                <TextBlock Text="Preview"
+                           Foreground="#666"
+                           FontSize="24"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                <!-- Future: Image control bound to preview bitmap -->
+                <!-- <Image Source="{Binding PreviewBitmap}" Stretch="Uniform" /> -->
+            </Grid>
+        </Border>
+
+        <!-- Column 2: Images Panel -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="Item Images"
+                       FontWeight="Bold"
+                       Margin="0,0,0,8" />
+
+            <ListBox Grid.Row="1"
+                     BorderBrush="#ccc"
+                     BorderThickness="1"
+                     Margin="0,0,0,12" />
+
+            <StackPanel Grid.Row="2" Orientation="Vertical">
+                <Button Content="Add Images"
+                        Margin="0,0,0,8"
+                        Padding="8,6" />
+                <Button Content="Clear Images"
+                        Margin="0,0,0,8"
+                        Padding="8,6" />
+                <Separator Margin="0,4,0,12" />
+                <Button Content="Generate Preview"
+                        Padding="8,6"
+                        Margin="0,0,0,8" />
+                <Button Content="Render &amp; Save"
+                        Padding="8,6"
+                        FontWeight="Bold" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
+
