@@ -28,7 +28,7 @@ namespace PinGen.App.Views
 
         private void BrowseImage_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as System.Windows.Controls.Button;
+            var button = sender as Button;
             var slot = button?.Tag as ItemImage;
             if (slot == null) return;
 
@@ -45,7 +45,7 @@ namespace PinGen.App.Views
 
         private void ClearSlot_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as System.Windows.Controls.Button;
+            var button = sender as Button;
             var slot = button?.Tag as ItemImage;
             if (slot == null) return;
 
