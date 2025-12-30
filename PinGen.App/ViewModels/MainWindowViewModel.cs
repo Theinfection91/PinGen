@@ -17,6 +17,12 @@ namespace PinGen.App.ViewModels
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
+        // INotifyPropertyChanged implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        // Properties bound to UI
         private string _title;
         private string _subtitle;
         private string _footer;
@@ -68,10 +74,6 @@ namespace PinGen.App.ViewModels
             //ItemImagePaths.Add("Assets/TestImages/test4.jpg");
             //ItemImagePaths.Add("Assets/TestImages/test5.jpg");
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private void Render()
         {
