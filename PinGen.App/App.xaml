@@ -1,9 +1,9 @@
 ﻿<Application x:Class="PinGen.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:PinGen.App"
+             xmlns:converters="clr-namespace:PinGen.App.Converters"
              StartupUri="Views/AwakenWindow.xaml">
     <Application.Resources>
-         
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Application.Resources>
 </Application>
