@@ -23,7 +23,7 @@ namespace PinGen.App.Views
         public AwakenWindow()
         {
             InitializeComponent();
-            DataContext = new AwakenWindowViewModel();
+            //DataContext = new AwakenWindowViewModel();
         }
 
         private void BrowseImage_Click(object sender, RoutedEventArgs e)
