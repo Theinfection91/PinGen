@@ -106,7 +106,7 @@ namespace PinGen.Templates.Services
                     {
                         Bounds = new Rect(300, 540, 360, 520),
                         ShowNumber = true,
-                        NumberArea = new Rect(620, 560, 90, 90)
+                        NumberArea = new Rect(275, 700, 90, 90)
                     },
                     new TemplateSlot
                     {
