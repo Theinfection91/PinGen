@@ -63,6 +63,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\PinGen.Core\PinGen.Core.csproj" />
 		<ProjectReference Include="..\PinGen.ImageProcessing\PinGen.ImageProcessing.csproj" />
 		<ProjectReference Include="..\PinGen.IO\PinGen.IO.csproj" />

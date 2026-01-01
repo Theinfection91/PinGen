@@ -1,8 +1,18 @@
-﻿using System;
+﻿using PinGen.App.Commands;
+using PinGen.Core.Models;
+using PinGen.Core.Validation;
+using PinGen.IO.Interfaces;
+using PinGen.Rendering.Interfaces;
+using PinGen.Templates.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
-using PinGen.Core.Models;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PinGen.App.ViewModels
 {
@@ -12,6 +22,30 @@ namespace PinGen.App.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private string _title;
+        private string _subtitle;
+        private string _footer;
+
+        public string Title
+        {
+            get => _title;
+            set { _title = value; OnPropertyChanged(nameof(Title)); }
+        }
+
+        public string Subtitle
+        {
+            get => _subtitle;
+            set { _subtitle = value; OnPropertyChanged(nameof(Subtitle)); }
+        }
+
+        public string Footer
+        {
+            get => _footer;
+            set { _footer = value; OnPropertyChanged(nameof(Footer)); }
+        }
+
+        public ObservableCollection<string> Captions { get; } = new();
 
         // 8 fixed image slots
         public ItemImage Slot1 { get; } = new() { GroupName = "Slot1Tolerance" };
@@ -112,8 +146,96 @@ namespace PinGen.App.ViewModels
             set { _isOrangeSelected = value; OnPropertyChanged(nameof(IsOrangeSelected)); }
         }
 
-        public AwakenWindowViewModel()
+        // Preview Window Property
+        private BitmapSource _previewImage;
+        public BitmapSource PreviewImage
         {
+            get => _previewImage;
+            set { _previewImage = value; OnPropertyChanged(nameof(PreviewImage)); }
+        }
+
+        // Interfaces
+        public ICommand GeneratePreviewCommand { get; }
+        public ICommand RenderCommand { get; }
+
+        private readonly IPinRenderer _pinRenderer;
+        private readonly ITemplateProvider _templateProvider;
+        private readonly IFileSaver _fileSaver;
+
+        public AwakenWindowViewModel(IPinRenderer pinRenderer, ITemplateProvider templateProvider, IFileSaver fileSaver)
+        {
+            _pinRenderer = pinRenderer;
+            _templateProvider = templateProvider;
+            _fileSaver = fileSaver;
+
+            GeneratePreviewCommand = new RelayCommand(GeneratePreview);
+            RenderCommand = new RelayCommand(Render);
+
+            // Seed captions
+            Captions.Add("");
+            Captions.Add("");
+            Captions.Add("");
+        }
+
+        private List<ItemImage> GetItemImagesToList()
+        {
+            var itemImages = new List<ItemImage>();
+            if (!string.IsNullOrEmpty(Slot1.SourcePath))
+                itemImages.Add(Slot1);
+            if (!string.IsNullOrEmpty(Slot2.SourcePath))
+                itemImages.Add(Slot2);
+            if (!string.IsNullOrEmpty(Slot3.SourcePath))
+                itemImages.Add(Slot3);
+            if (!string.IsNullOrEmpty(Slot4.SourcePath))
+                itemImages.Add(Slot4);
+            if (!string.IsNullOrEmpty(Slot5.SourcePath))
+                itemImages.Add(Slot5);
+            if (!string.IsNullOrEmpty(Slot6.SourcePath))
+                itemImages.Add(Slot6);
+            if (!string.IsNullOrEmpty(Slot7.SourcePath))
+                itemImages.Add(Slot7);
+            if (!string.IsNullOrEmpty(Slot8.SourcePath))
+                itemImages.Add(Slot8);
+            return itemImages;
+        }
+
+        private void GeneratePreview()
+        {
+            try
+            {
+                var request = new PinRequest
+                {
+                    Title = Title,
+                    Subtitle = Subtitle,
+                    Footer = IsFooterEnabled ? Footer : string.Empty,
+                    ItemImages = GetItemImagesToList(),
+                    Captions = Captions.ToList(),
+                };
+
+                if (!PinRequestValidator.Validate(request))
+                {
+                    MessageBox.Show("The pin request is invalid. Please check your inputs.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var template = _templateProvider.GetTemplate(request.ItemImages.Count);
+                var bitmap = _pinRenderer.Render(request, template);
+                PreviewImage = bitmap;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while generating the preview:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            // Implementation for generating preview image based on current settings
+            // This is a placeholder for actual preview generation logic
+            // You would typically call your rendering service here
+        }
+
+        private void Render()
+        {
+            // Implementation for rendering the final pin image based on current settings
+            // This is a placeholder for actual rendering logic
+            // You would typically call your rendering service here
         }
 
         public void ClearAllSlots()

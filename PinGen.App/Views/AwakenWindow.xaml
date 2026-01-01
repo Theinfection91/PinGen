@@ -108,15 +108,15 @@
         <!-- Column 0: Text Inputs -->
         <StackPanel Grid.Column="0" Margin="0,0,16,0">
             <TextBlock Text="Title" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" />
+            <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Text="Subtitle" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" />
-
+            <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}"/>
+            
             <TextBlock Text="Captions" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" />
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" />
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,12" />
+            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Captions[0], UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Captions[1], UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding Captions[2], UpdateSourceTrigger=PropertyChanged}"/>
 
             <!-- Footer with Optional Toggle -->
             <StackPanel Margin="0,0,0,4">
@@ -132,7 +132,7 @@
                      Height="60" 
                      Margin="0,0,0,12"
                      IsEnabled="{Binding IsFooterEnabled}"
-                     Opacity="{Binding IsFooterEnabled, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Opacity}" />
+                     Opacity="{Binding IsFooterEnabled, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Opacity}" Text="{Binding Footer, UpdateSourceTrigger=PropertyChanged}"/>
 
             <Button Content="Clear All Text" HorizontalAlignment="Center" Padding="12,6" Margin="0,0,0,16" />
 
@@ -235,6 +235,7 @@
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                         <!-- Future: Image control bound to preview bitmap -->
+                        <Image Source="{Binding PreviewImage}" Stretch="Uniform" />
                     </Grid>
                 </Border>
             </Viewbox>
@@ -301,6 +302,7 @@
                         Click="ClearImages_Click" />
                 <Separator Margin="0,4,0,12" />
                 <Button Content="Generate Preview"
+                        Command="{Binding GeneratePreviewCommand}"
                         Padding="8,6"
                         Margin="0,0,0,8" />
                 <Button Content="Render &amp; Save"
