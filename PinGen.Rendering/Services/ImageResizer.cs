@@ -6,6 +6,6 @@ namespace PinGen.Rendering.Services
 {
     public class ImageResizer
     {
-
+        // TODO : Maybe build this for scaling feature
     }
 }
