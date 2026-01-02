@@ -221,6 +221,14 @@ namespace PinGen.App.ViewModels
                 var template = _templateProvider.GetTemplate(request.ItemImages.Count);
                 var bitmap = _pinRenderer.Render(request, template);
                 PreviewImage = bitmap;
+
+                // Open Messagebox with each ItemImage's SourcePath and Scale for debugging
+                //StringBuilder debugInfo = new StringBuilder("Item Images:\n");
+                //foreach (var item in request.ItemImages)
+                //{
+                //    debugInfo.AppendLine($"SourcePath: {item.SourcePath}, Scale: {item.Scale}");
+                //}
+                //MessageBox.Show(debugInfo.ToString(), "Debug Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {

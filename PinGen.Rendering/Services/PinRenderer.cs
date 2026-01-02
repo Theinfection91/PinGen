@@ -86,6 +86,9 @@ namespace PinGen.Rendering.Services
                 var slot = template.TemplateSlots[i];
 
                 var fitted = slot.Bounds;
+                // Apply ItemImage Scale it Rect's size
+                fitted.Width *= request.ItemImages[i].Scale;
+                fitted.Height *= request.ItemImages[i].Scale;
                 int targetW = (int)Math.Round(fitted.Width);
                 int targetH = (int)Math.Round(fitted.Height);
 
