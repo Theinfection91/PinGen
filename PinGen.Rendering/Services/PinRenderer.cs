@@ -151,16 +151,16 @@ namespace PinGen.Rendering.Services
                 }
             }
 
-            // Caption
+            // Captions - use specified font size, no auto-scaling
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
             {
+                var caption = request.Captions[i];
                 var area = template.CaptionAreas[i];
-                DrawOutlinedTextAutoFit(
+                DrawOutlinedTextFixedSize(
                     context,
-                    request.Captions[i],
+                    caption.Text,
                     area,
-                    24,
-                    12,
+                    caption.FontSize,
                     Brushes.Black,
                     Brushes.White,
                     2,
@@ -230,6 +230,36 @@ namespace PinGen.Rendering.Services
 
             if (ft == null || fontSize < minFontSize)
                 return;
+
+            // Center vertically within area
+            var origin = new Point(
+                area.X,
+                area.Y + (area.Height - ft.Height) / 2);
+
+            // Build geometry and draw with stroke and fill
+            var geo = ft.BuildGeometry(origin);
+            ctx.DrawGeometry(null, new Pen(stroke, strokeWidth), geo);
+            ctx.DrawGeometry(fill, null, geo);
+        }
+
+        private static void DrawOutlinedTextFixedSize(DrawingContext ctx, string text, Rect area, double fontSize, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            var ft = new FormattedText(
+                text,
+                System.Globalization.CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                defaultFont,
+                fontSize,
+                fill,
+                1.0)
+            {
+                MaxTextWidth = area.Width,
+                TextAlignment = alignment,
+                Trimming = TextTrimming.CharacterEllipsis
+            };
 
             // Center vertically within area
             var origin = new Point(

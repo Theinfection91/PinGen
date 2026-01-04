@@ -114,9 +114,57 @@
             <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}"/>
             
             <TextBlock Text="Captions" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Captions[0], UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Captions[1], UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding Captions[2], UpdateSourceTrigger=PropertyChanged}"/>
+            
+            <!-- Caption 1 with font size dropdown -->
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" 
+                         TextWrapping="Wrap" 
+                         Text="{Binding Caption1.Text, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,4,0"/>
+                <ComboBox Grid.Column="1" 
+                          Width="50"
+                          ItemsSource="{Binding FontSizeOptions}"
+                          SelectedValue="{Binding Caption1.FontSize}"
+                          ToolTip="Font Size"/>
+            </Grid>
+            
+            <!-- Caption 2 with font size dropdown -->
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" 
+                         TextWrapping="Wrap" 
+                         Text="{Binding Caption2.Text, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,4,0"/>
+                <ComboBox Grid.Column="1" 
+                          Width="50"
+                          ItemsSource="{Binding FontSizeOptions}"
+                          SelectedValue="{Binding Caption2.FontSize}"
+                          ToolTip="Font Size"/>
+            </Grid>
+            
+            <!-- Caption 3 with font size dropdown -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" 
+                         TextWrapping="Wrap" 
+                         Text="{Binding Caption3.Text, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,4,0"/>
+                <ComboBox Grid.Column="1" 
+                          Width="50"
+                          ItemsSource="{Binding FontSizeOptions}"
+                          SelectedValue="{Binding Caption3.FontSize}"
+                          ToolTip="Font Size"/>
+            </Grid>
 
             <!-- Footer with Optional Toggle -->
             <StackPanel Margin="0,0,0,4">

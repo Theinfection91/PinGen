@@ -46,7 +46,13 @@ namespace PinGen.App.ViewModels
             set { _footer = value; OnPropertyChanged(nameof(Footer)); }
         }
 
-        public ObservableCollection<string> Captions { get; } = new();
+        // Captions with font size control
+        public CaptionItem Caption1 { get; } = new();
+        public CaptionItem Caption2 { get; } = new();
+        public CaptionItem Caption3 { get; } = new();
+
+        // Font size options for dropdowns
+        public int[] FontSizeOptions => CaptionItem.AvailableFontSizes;
 
         // 8 fixed image slots
         public ItemImage Slot1 { get; } = new() { GroupName = "Slot1Tolerance" };
@@ -171,11 +177,6 @@ namespace PinGen.App.ViewModels
 
             GeneratePreviewCommand = new RelayCommand(GeneratePreview);
             RenderCommand = new RelayCommand(Render);
-
-            // Seed captions
-            Captions.Add("");
-            Captions.Add("");
-            Captions.Add("");
         }
 
         private List<ItemImage> GetItemImagesToList()
@@ -200,6 +201,11 @@ namespace PinGen.App.ViewModels
             return itemImages;
         }
 
+        private List<CaptionItem> GetCaptionsList()
+        {
+            return new List<CaptionItem> { Caption1, Caption2, Caption3 };
+        }
+
         private void GeneratePreview()
         {
             try
@@ -210,7 +216,7 @@ namespace PinGen.App.ViewModels
                     Subtitle = Subtitle,
                     Footer = IsFooterEnabled ? Footer : string.Empty,
                     ItemImages = GetItemImagesToList(),
-                    Captions = Captions.ToList(),
+                    Captions = GetCaptionsList(),
                 };
 
                 if (!PinRequestValidator.Validate(request))
@@ -239,7 +245,7 @@ namespace PinGen.App.ViewModels
                     Subtitle = Subtitle,
                     Footer = IsFooterEnabled ? Footer : string.Empty,
                     ItemImages = GetItemImagesToList(),
-                    Captions = Captions.ToList(),
+                    Captions = GetCaptionsList(),
                 };
 
                 if (!PinRequestValidator.Validate(request))
