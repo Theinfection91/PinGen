@@ -20,6 +20,7 @@ namespace PinGen.Rendering.Services
         private readonly IImageProcessor _imageProcessor;
 
         private static Typeface defaultFont;
+        private readonly string _defaultBackgroundPath;
 
         public PinRenderer(IFontLoader fontLoader, IImageLoader imageLoader, IImageProcessor imageProcessor)
         {
@@ -32,9 +33,16 @@ namespace PinGen.Rendering.Services
             defaultFont = _fontLoader.Load(
                 Path.Combine(appBase, "Assets", "Fonts", "horizon.otf"),
                 "Horizon");
+
+            _defaultBackgroundPath = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
         }
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
+        {
+            return Render(request, template, _defaultBackgroundPath);
+        }
+
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath)
         {
             var bitmap = new RenderTargetBitmap(
                 template.Width,
@@ -50,10 +58,8 @@ namespace PinGen.Rendering.Services
 
             using var context = visual.RenderOpen();
 
-            // Background (already correct size)
-            string appBase = AppDomain.CurrentDomain.BaseDirectory;
-            var bgPath = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
-            var background = _imageLoader.Load(bgPath);
+            // Background
+            var background = _imageLoader.Load(backgroundPath);
             context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
 
             // Title (black fill + white stroke)
