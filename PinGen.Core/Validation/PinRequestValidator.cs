@@ -7,17 +7,31 @@ namespace PinGen.Core.Validation
 {
     public static class PinRequestValidator
     {
-        public static void Validate(PinRequest request)
+        public static bool Validate(PinRequest request)
         {
             // Basic validation checks
             if (string.IsNullOrWhiteSpace(request.Title))
-                throw new ArgumentException("Pin must have a title.");
+                return false;
+
+            if (string.IsNullOrWhiteSpace(request.Subtitle))
+                return false;
+
+            foreach (var caption in request.Captions)
+            {
+                if (string.IsNullOrWhiteSpace(caption.Text))
+                    return false;
+            }
+
+            if (request.ItemImages == null || request.ItemImages.Count == 0)
+                return false;
 
             foreach (var item in request.ItemImages)
             {
                 if (string.IsNullOrWhiteSpace(item.SourcePath))
-                    throw new ArgumentException("Each image must have a valid source path.");
+                    return false;
             }
+
+            return true;
         }
     }
 }

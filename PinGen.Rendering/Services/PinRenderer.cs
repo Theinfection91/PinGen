@@ -20,6 +20,7 @@ namespace PinGen.Rendering.Services
         private readonly IImageProcessor _imageProcessor;
 
         private static Typeface defaultFont;
+        private readonly string _defaultBackgroundPath;
 
         public PinRenderer(IFontLoader fontLoader, IImageLoader imageLoader, IImageProcessor imageProcessor)
         {
@@ -32,9 +33,26 @@ namespace PinGen.Rendering.Services
             defaultFont = _fontLoader.Load(
                 Path.Combine(appBase, "Assets", "Fonts", "horizon.otf"),
                 "Horizon");
+
+            _defaultBackgroundPath = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
         }
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
+        {
+            return Render(request, template, _defaultBackgroundPath, null);
+        }
+
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, List<double> yOffsets)
+        {
+            return Render(request, template, _defaultBackgroundPath, yOffsets);
+        }
+
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath)
+        {
+            return Render(request, template, backgroundPath, null);
+        }
+
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath, List<double> yOffsets)
         {
             var bitmap = new RenderTargetBitmap(
                 template.Width,
@@ -50,10 +68,8 @@ namespace PinGen.Rendering.Services
 
             using var context = visual.RenderOpen();
 
-            // Background (already correct size)
-            string appBase = AppDomain.CurrentDomain.BaseDirectory;
-            var bgPath = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
-            var background = _imageLoader.Load(bgPath);
+            // Background
+            var background = _imageLoader.Load(backgroundPath);
             context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
 
             // Title (black fill + white stroke)
@@ -85,20 +101,37 @@ namespace PinGen.Rendering.Services
             {
                 var slot = template.TemplateSlots[i];
 
-                var fitted = slot.Bounds;
-                int targetW = (int)Math.Round(fitted.Width);
-                int targetH = (int)Math.Round(fitted.Height);
+                // Calculate scaled and clamped rect
+                var scaledRect = GetScaledRect(slot, request.ItemImages[i].Scale);
+                
+                // Use provided Y offset or generate random one
+                double yOffset = (yOffsets != null && i < yOffsets.Count) 
+                    ? yOffsets[i] 
+                    : Random.Shared.Next(-15, 16);
+                scaledRect = new Rect(scaledRect.X, scaledRect.Y + yOffset, scaledRect.Width, scaledRect.Height);
+                
+                var clampedRect = Rect.Intersect(scaledRect, template.SafeZone);
+                
+                // Skip if completely outside safe zone
+                if (clampedRect.IsEmpty)
+                    continue;
+                
+                int targetW = (int)Math.Round(clampedRect.Width);
+                int targetH = (int)Math.Round(clampedRect.Height);
 
                 var imageSharp = _imageLoader.LoadImageSharp(request.ItemImages[i].SourcePath);
                 var image = _imageProcessor.PrepareAndRemoveWhite(imageSharp, targetW, targetH);
 
-                var drawRect = fitted.FitTo(image);
+                var drawRect = clampedRect.FitTo(image);
                 context.DrawImage(image, drawRect);
 
-                // Draw number overlay if enabled
+                // Draw number overlay if enabled (apply same yOffset to keep in sync with image)
                 if (slot.ShowNumber && slot.NumberArea.HasValue)
                 {
                     var numberArea = slot.NumberArea.Value;
+                    
+                    // Apply the same Y offset to the number area
+                    double numberY = numberArea.Y + yOffset;
 
                     // Create two number texts offset for 3d effect
                     var numberTextShadow = new FormattedText(
@@ -118,31 +151,31 @@ namespace PinGen.Rendering.Services
                         Brushes.White,
                         1.0);
 
-                    // Draw shadow offset
+                    // Draw shadow offset (with yOffset applied)
                     context.DrawText(
                         numberTextShadow,
                         new Point(
                             numberArea.X + (numberArea.Width - numberTextShadow.Width) / 2 + 6,
-                            numberArea.Y + (numberArea.Height - numberTextShadow.Height) / 2));
-                    // Draw main text
+                            numberY + (numberArea.Height - numberTextShadow.Height) / 2));
+                    // Draw main text (with yOffset applied)
                     context.DrawText(
                         numberText,
                         new Point(
                             numberArea.X + (numberArea.Width - numberText.Width) / 2,
-                            numberArea.Y + (numberArea.Height - numberText.Height) / 2));
+                            numberY + (numberArea.Height - numberText.Height) / 2));
                 }
             }
 
-            // Caption
+            // Captions - use specified font size, no auto-scaling
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
             {
+                var caption = request.Captions[i];
                 var area = template.CaptionAreas[i];
-                DrawOutlinedTextAutoFit(
+                DrawOutlinedTextFixedSize(
                     context,
-                    request.Captions[i],
+                    caption.Text,
                     area,
-                    24,
-                    12,
+                    caption.FontSize,
                     Brushes.Black,
                     Brushes.White,
                     2,
@@ -224,5 +257,52 @@ namespace PinGen.Rendering.Services
             ctx.DrawGeometry(fill, null, geo);
         }
 
+        private static void DrawOutlinedTextFixedSize(DrawingContext ctx, string text, Rect area, double fontSize, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            var ft = new FormattedText(
+                text,
+                System.Globalization.CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                defaultFont,
+                fontSize,
+                fill,
+                1.0)
+            {
+                MaxTextWidth = area.Width,
+                TextAlignment = alignment,
+                Trimming = TextTrimming.CharacterEllipsis
+            };
+
+            // Center vertically within area
+            var origin = new Point(
+                area.X,
+                area.Y + (area.Height - ft.Height) / 2);
+
+            // Build geometry and draw with stroke and fill
+            var geo = ft.BuildGeometry(origin);
+            ctx.DrawGeometry(null, new Pen(stroke, strokeWidth), geo);
+            ctx.DrawGeometry(fill, null, geo);
+        }
+
+        private static Rect GetScaledRect(TemplateSlot slot, double scale)
+        {
+            // Original center point
+            double centerX = slot.Bounds.X + slot.Bounds.Width / 2;
+            double centerY = slot.Bounds.Y + slot.Bounds.Height / 2;
+
+            // New dimensions
+            double newWidth = slot.Bounds.Width * scale;
+            double newHeight = slot.Bounds.Height * scale;
+
+            // Reposition around same center
+            return new Rect(
+                centerX - newWidth / 2,
+                centerY - newHeight / 2,
+                newWidth,
+                newHeight);
+        }
     }
 }

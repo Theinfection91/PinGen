@@ -8,5 +8,6 @@ namespace PinGen.IO.Interfaces
     public interface IFileSaver
     {
         void Save(BitmapSource bitmap, string path);
+        string SanitizeFileName(string title, int maxLength = 200);
     }
 }
