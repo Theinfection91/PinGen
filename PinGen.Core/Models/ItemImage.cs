@@ -13,24 +13,26 @@ namespace PinGen.Core.Models
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private string _sourcePath = string.Empty;
-        private double _scale = 1.0;
-        private bool _enableWhiteRemoval = true;
-        private bool _isOption1Selected = true;
-
         public string SourcePath
         {
             get => _sourcePath;
             set { _sourcePath = value; OnPropertyChanged(nameof(SourcePath)); OnPropertyChanged(nameof(FileName)); OnPropertyChanged(nameof(HasImage)); }
         }
 
-        public string FileName => Path.GetFileName(SourcePath);
-        public bool HasImage => !string.IsNullOrEmpty(SourcePath);
-
+        private double _scale = 1.0;
         public double Scale
         {
             get => _scale;
             set { _scale = value; OnPropertyChanged(nameof(Scale)); }
         }
+
+        private bool _enableWhiteRemoval = true;
+        private bool _isOption1Selected = true;       
+
+        public string FileName => Path.GetFileName(SourcePath);
+        public bool HasImage => !string.IsNullOrEmpty(SourcePath);
+
+        
 
         public string? AltText { get; set; }
 

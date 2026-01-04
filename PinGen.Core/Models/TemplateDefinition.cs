@@ -9,6 +9,7 @@ namespace PinGen.Core.Models
     {
         public int Width { get; set; } = 1000;
         public int Height { get; set; } = 1500;
+        public Rect SafeZone { get; set; }
         public Rect TitleArea { get; set; }
         public Rect SubtitleArea { get; set; }
         public Rect? FooterArea { get; set; }

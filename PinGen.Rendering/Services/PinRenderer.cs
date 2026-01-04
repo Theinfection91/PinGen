@@ -85,14 +85,26 @@ namespace PinGen.Rendering.Services
             {
                 var slot = template.TemplateSlots[i];
 
-                var fitted = slot.Bounds;
-                int targetW = (int)Math.Round(fitted.Width);
-                int targetH = (int)Math.Round(fitted.Height);
+                // Calculate scaled and clamped rect
+                var scaledRect = GetScaledRect(slot, request.ItemImages[i].Scale);
+                
+                // Apply random Y offset for visual variance (±15 pixels)
+                double yOffset = Random.Shared.Next(-15, 16);
+                scaledRect = new Rect(scaledRect.X, scaledRect.Y + yOffset, scaledRect.Width, scaledRect.Height);
+                
+                var clampedRect = Rect.Intersect(scaledRect, template.SafeZone);
+                
+                // Skip if completely outside safe zone
+                if (clampedRect.IsEmpty)
+                    continue;
+                
+                int targetW = (int)Math.Round(clampedRect.Width);
+                int targetH = (int)Math.Round(clampedRect.Height);
 
                 var imageSharp = _imageLoader.LoadImageSharp(request.ItemImages[i].SourcePath);
                 var image = _imageProcessor.PrepareAndRemoveWhite(imageSharp, targetW, targetH);
 
-                var drawRect = fitted.FitTo(image);
+                var drawRect = clampedRect.FitTo(image);
                 context.DrawImage(image, drawRect);
 
                 // Draw number overlay if enabled
@@ -224,5 +236,22 @@ namespace PinGen.Rendering.Services
             ctx.DrawGeometry(fill, null, geo);
         }
 
+        private static Rect GetScaledRect(TemplateSlot slot, double scale)
+        {
+            // Original center point
+            double centerX = slot.Bounds.X + slot.Bounds.Width / 2;
+            double centerY = slot.Bounds.Y + slot.Bounds.Height / 2;
+
+            // New dimensions
+            double newWidth = slot.Bounds.Width * scale;
+            double newHeight = slot.Bounds.Height * scale;
+
+            // Reposition around same center
+            return new Rect(
+                centerX - newWidth / 2,
+                centerY - newHeight / 2,
+                newWidth,
+                newHeight);
+        }
     }
 }

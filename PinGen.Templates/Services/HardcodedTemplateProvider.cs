@@ -7,6 +7,7 @@ namespace PinGen.Templates.Services
 {
     public class HardcodedTemplateProvider : ITemplateProvider
     {
+        private Rect _defaultSafeZone = new Rect(23, 32, 954, 1446);
         private Rect _defaultTitleArea = new Rect(25, 30, 950, 125);
         private Rect _defaultSubtitleArea = new Rect(25, 120, 950, 150);
         private Rect _defaultFooterArea = new Rect(25, 1325, 950, 140);
@@ -42,6 +43,7 @@ namespace PinGen.Templates.Services
         {
             return new TemplateDefinition
             {
+                SafeZone = _defaultSafeZone,
                 TitleArea = _defaultTitleArea,
                 SubtitleArea = _defaultSubtitleArea,
                 FooterArea = _defaultFooterArea,
@@ -85,6 +87,7 @@ namespace PinGen.Templates.Services
         {
             return new TemplateDefinition
             {
+                SafeZone = _defaultSafeZone,
                 TitleArea = _defaultTitleArea,
                 SubtitleArea = _defaultSubtitleArea,
                 FooterArea = _defaultFooterArea,
@@ -134,6 +137,7 @@ namespace PinGen.Templates.Services
         {
             return new TemplateDefinition
             {
+                SafeZone = _defaultSafeZone,
                 TitleArea = _defaultTitleArea,
                 SubtitleArea = _defaultSubtitleArea,
                 FooterArea = _defaultFooterArea,
@@ -189,6 +193,7 @@ namespace PinGen.Templates.Services
         {
             return new TemplateDefinition
             {
+                SafeZone = _defaultSafeZone,
                 TitleArea = _defaultTitleArea,
                 SubtitleArea = _defaultSubtitleArea,
                 FooterArea = _defaultFooterArea,
@@ -250,6 +255,7 @@ namespace PinGen.Templates.Services
         {
             return new TemplateDefinition
             {
+                SafeZone = _defaultSafeZone,
                 TitleArea = _defaultTitleArea,
                 SubtitleArea = _defaultSubtitleArea,
                 FooterArea = _defaultFooterArea,
