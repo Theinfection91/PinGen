@@ -72,10 +72,9 @@ namespace PinGen.App.ViewModels
             set { _isFooterEnabled = value; OnPropertyChanged(nameof(IsFooterEnabled)); }
         }
 
-        // Background options
+        // Background preview selection
         private bool _useBackground1 = true;
         private bool _useBackground2;
-        private bool _useCustomColor;
 
         public bool UseBackground1
         {
@@ -89,70 +88,6 @@ namespace PinGen.App.ViewModels
             set { _useBackground2 = value; OnPropertyChanged(nameof(UseBackground2)); }
         }
 
-        public bool UseCustomColor
-        {
-            get => _useCustomColor;
-            set { _useCustomColor = value; OnPropertyChanged(nameof(UseCustomColor)); }
-        }
-
-        // Color palette selections
-        private bool _isWhiteSelected = true;
-        private bool _isBlackSelected;
-        private bool _isRedSelected;
-        private bool _isBlueSelected;
-        private bool _isGreenSelected;
-        private bool _isYellowSelected;
-        private bool _isPurpleSelected;
-        private bool _isOrangeSelected;
-
-        public bool IsWhiteSelected
-        {
-            get => _isWhiteSelected;
-            set { _isWhiteSelected = value; OnPropertyChanged(nameof(IsWhiteSelected)); }
-        }
-
-        public bool IsBlackSelected
-        {
-            get => _isBlackSelected;
-            set { _isBlackSelected = value; OnPropertyChanged(nameof(IsBlackSelected)); }
-        }
-
-        public bool IsRedSelected
-        {
-            get => _isRedSelected;
-            set { _isRedSelected = value; OnPropertyChanged(nameof(IsRedSelected)); }
-        }
-
-        public bool IsBlueSelected
-        {
-            get => _isBlueSelected;
-            set { _isBlueSelected = value; OnPropertyChanged(nameof(IsBlueSelected)); }
-        }
-
-        public bool IsGreenSelected
-        {
-            get => _isGreenSelected;
-            set { _isGreenSelected = value; OnPropertyChanged(nameof(IsGreenSelected)); }
-        }
-
-        public bool IsYellowSelected
-        {
-            get => _isYellowSelected;
-            set { _isYellowSelected = value; OnPropertyChanged(nameof(IsYellowSelected)); }
-        }
-
-        public bool IsPurpleSelected
-        {
-            get => _isPurpleSelected;
-            set { _isPurpleSelected = value; OnPropertyChanged(nameof(IsPurpleSelected)); }
-        }
-
-        public bool IsOrangeSelected
-        {
-            get => _isOrangeSelected;
-            set { _isOrangeSelected = value; OnPropertyChanged(nameof(IsOrangeSelected)); }
-        }
-
         // Preview Window Property
         private BitmapSource _previewImage;
         public BitmapSource PreviewImage
@@ -160,6 +95,9 @@ namespace PinGen.App.ViewModels
             get => _previewImage;
             set { _previewImage = value; OnPropertyChanged(nameof(PreviewImage)); }
         }
+
+        // Cached Y offsets from preview generation (ensures saved images match preview)
+        private List<double> _cachedYOffsets = new();
 
         // Interfaces
         public ICommand GeneratePreviewCommand { get; }
@@ -206,6 +144,13 @@ namespace PinGen.App.ViewModels
             return new List<CaptionItem> { Caption1, Caption2, Caption3 };
         }
 
+        private string GetPreviewBackgroundPath()
+        {
+            string appBase = AppDomain.CurrentDomain.BaseDirectory;
+            string bgFile = UseBackground1 ? "bg1.png" : "bg2.png";
+            return Path.Combine(appBase, "Assets", "Backgrounds", bgFile);
+        }
+
         private void GeneratePreview()
         {
             try
@@ -225,8 +170,16 @@ namespace PinGen.App.ViewModels
                     return;
                 }
 
-                var template = _templateProvider.GetTemplate(request.ItemImages.Count);
-                var bitmap = _pinRenderer.Render(request, template);
+                // Generate new random Y offsets for this preview
+                _cachedYOffsets.Clear();
+                for (int i = 0; i < request.ItemImages.Count; i++)
+                {
+                    _cachedYOffsets.Add(Random.Shared.Next(-15, 16));
+                }
+
+                var template = _templateProvider.GetTemplate(request.ItemImages.Count, IsFooterEnabled);
+                var backgroundPath = GetPreviewBackgroundPath();
+                var bitmap = _pinRenderer.Render(request, template, backgroundPath, _cachedYOffsets);
                 PreviewImage = bitmap;
             }
             catch (Exception ex)
@@ -254,7 +207,17 @@ namespace PinGen.App.ViewModels
                     return;
                 }
 
-                var template = _templateProvider.GetTemplate(request.ItemImages.Count);
+                // If no preview was generated, create offsets now
+                if (_cachedYOffsets.Count != request.ItemImages.Count)
+                {
+                    _cachedYOffsets.Clear();
+                    for (int i = 0; i < request.ItemImages.Count; i++)
+                    {
+                        _cachedYOffsets.Add(Random.Shared.Next(-15, 16));
+                    }
+                }
+
+                var template = _templateProvider.GetTemplate(request.ItemImages.Count, IsFooterEnabled);
 
                 // Sanitize title for filename (leave room for number suffix)
                 var sanitizedTitle = _fileSaver.SanitizeFileName(Title, 199);
@@ -268,13 +231,13 @@ namespace PinGen.App.ViewModels
                 string bg1Path = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
                 string bg2Path = Path.Combine(appBase, "Assets", "Backgrounds", "bg2.png");
 
-                // Render and save with bg1
-                var bitmap1 = _pinRenderer.Render(request, template, bg1Path);
+                // Render and save with bg1 (using cached offsets)
+                var bitmap1 = _pinRenderer.Render(request, template, bg1Path, _cachedYOffsets);
                 string file1Path = Path.Combine(outputFolder, $"{sanitizedTitle}1.png");
                 _fileSaver.Save(bitmap1, file1Path);
 
-                // Render and save with bg2
-                var bitmap2 = _pinRenderer.Render(request, template, bg2Path);
+                // Render and save with bg2 (using same cached offsets)
+                var bitmap2 = _pinRenderer.Render(request, template, bg2Path, _cachedYOffsets);
                 string file2Path = Path.Combine(outputFolder, $"{sanitizedTitle}2.png");
                 _fileSaver.Save(bitmap2, file2Path);
 
@@ -305,6 +268,9 @@ namespace PinGen.App.ViewModels
             Slot6.Scale = 1.0;
             Slot7.Scale = 1.0;
             Slot8.Scale = 1.0;
+
+            // Clear cached offsets when slots are cleared
+            _cachedYOffsets.Clear();
         }
     }
 }

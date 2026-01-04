@@ -15,7 +15,7 @@ namespace PinGen.Core.Models
             set { _text = value; OnPropertyChanged(nameof(Text)); }
         }
 
-        private int _fontSize = 20;
+        private int _fontSize = 22;  // Changed from 20 to match first option
         public int FontSize
         {
             get => _fontSize;

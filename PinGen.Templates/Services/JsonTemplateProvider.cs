@@ -13,5 +13,11 @@ namespace PinGen.Templates.Services
             // Implementation to read and parse a JSON template based on the itemCount
             return new TemplateDefinition();
         }
+
+        public TemplateDefinition GetTemplate(int itemCount, bool hasFooter)
+        {
+            // Implementation to read and parse a JSON template based on the itemCount and hasFooter
+            return new TemplateDefinition();
+        }
     }
 }

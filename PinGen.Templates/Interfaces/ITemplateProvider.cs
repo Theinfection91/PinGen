@@ -8,5 +8,6 @@ namespace PinGen.Templates.Interfaces
     public interface ITemplateProvider
     {
         TemplateDefinition GetTemplate(int itemCount);
+        TemplateDefinition GetTemplate(int itemCount, bool hasFooter);
     }
 }

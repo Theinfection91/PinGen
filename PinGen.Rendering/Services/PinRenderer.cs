@@ -39,10 +39,20 @@ namespace PinGen.Rendering.Services
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
         {
-            return Render(request, template, _defaultBackgroundPath);
+            return Render(request, template, _defaultBackgroundPath, null);
+        }
+
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, List<double> yOffsets)
+        {
+            return Render(request, template, _defaultBackgroundPath, yOffsets);
         }
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath)
+        {
+            return Render(request, template, backgroundPath, null);
+        }
+
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath, List<double> yOffsets)
         {
             var bitmap = new RenderTargetBitmap(
                 template.Width,
@@ -94,8 +104,10 @@ namespace PinGen.Rendering.Services
                 // Calculate scaled and clamped rect
                 var scaledRect = GetScaledRect(slot, request.ItemImages[i].Scale);
                 
-                // Apply random Y offset for visual variance (±15 pixels)
-                double yOffset = Random.Shared.Next(-15, 16);
+                // Use provided Y offset or generate random one
+                double yOffset = (yOffsets != null && i < yOffsets.Count) 
+                    ? yOffsets[i] 
+                    : Random.Shared.Next(-15, 16);
                 scaledRect = new Rect(scaledRect.X, scaledRect.Y + yOffset, scaledRect.Width, scaledRect.Height);
                 
                 var clampedRect = Rect.Intersect(scaledRect, template.SafeZone);
@@ -113,10 +125,13 @@ namespace PinGen.Rendering.Services
                 var drawRect = clampedRect.FitTo(image);
                 context.DrawImage(image, drawRect);
 
-                // Draw number overlay if enabled
+                // Draw number overlay if enabled (apply same yOffset to keep in sync with image)
                 if (slot.ShowNumber && slot.NumberArea.HasValue)
                 {
                     var numberArea = slot.NumberArea.Value;
+                    
+                    // Apply the same Y offset to the number area
+                    double numberY = numberArea.Y + yOffset;
 
                     // Create two number texts offset for 3d effect
                     var numberTextShadow = new FormattedText(
@@ -136,18 +151,18 @@ namespace PinGen.Rendering.Services
                         Brushes.White,
                         1.0);
 
-                    // Draw shadow offset
+                    // Draw shadow offset (with yOffset applied)
                     context.DrawText(
                         numberTextShadow,
                         new Point(
                             numberArea.X + (numberArea.Width - numberTextShadow.Width) / 2 + 6,
-                            numberArea.Y + (numberArea.Height - numberTextShadow.Height) / 2));
-                    // Draw main text
+                            numberY + (numberArea.Height - numberTextShadow.Height) / 2));
+                    // Draw main text (with yOffset applied)
                     context.DrawText(
                         numberText,
                         new Point(
                             numberArea.X + (numberArea.Width - numberText.Width) / 2,
-                            numberArea.Y + (numberArea.Height - numberText.Height) / 2));
+                            numberY + (numberArea.Height - numberText.Height) / 2));
                 }
             }
 
