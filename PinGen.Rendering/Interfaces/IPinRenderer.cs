@@ -9,5 +9,6 @@ namespace PinGen.Rendering.Interfaces
     public interface IPinRenderer
     {
         RenderTargetBitmap Render(PinRequest request, TemplateDefinition template);
+        RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath);
     }
 }

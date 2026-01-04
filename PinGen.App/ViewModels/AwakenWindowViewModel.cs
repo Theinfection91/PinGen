@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -221,29 +222,62 @@ namespace PinGen.App.ViewModels
                 var template = _templateProvider.GetTemplate(request.ItemImages.Count);
                 var bitmap = _pinRenderer.Render(request, template);
                 PreviewImage = bitmap;
-
-                // Open Messagebox with each ItemImage's SourcePath and Scale for debugging
-                //StringBuilder debugInfo = new StringBuilder("Item Images:\n");
-                //foreach (var item in request.ItemImages)
-                //{
-                //    debugInfo.AppendLine($"SourcePath: {item.SourcePath}, Scale: {item.Scale}");
-                //}
-                //MessageBox.Show(debugInfo.ToString(), "Debug Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred while generating the preview:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            // Implementation for generating preview image based on current settings
-            // This is a placeholder for actual preview generation logic
-            // You would typically call your rendering service here
         }
 
         private void Render()
         {
-            // Implementation for rendering the final pin image based on current settings
-            // This is a placeholder for actual rendering logic
-            // You would typically call your rendering service here
+            try
+            {
+                var request = new PinRequest
+                {
+                    Title = Title,
+                    Subtitle = Subtitle,
+                    Footer = IsFooterEnabled ? Footer : string.Empty,
+                    ItemImages = GetItemImagesToList(),
+                    Captions = Captions.ToList(),
+                };
+
+                if (!PinRequestValidator.Validate(request))
+                {
+                    MessageBox.Show("The pin request is invalid. Please check your inputs.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var template = _templateProvider.GetTemplate(request.ItemImages.Count);
+
+                // Sanitize title for filename (leave room for number suffix)
+                var sanitizedTitle = _fileSaver.SanitizeFileName(Title, 199);
+
+                // Create output folder based on sanitized title
+                string appBase = AppDomain.CurrentDomain.BaseDirectory;
+                string outputFolder = Path.Combine(appBase, "Output", sanitizedTitle);
+                Directory.CreateDirectory(outputFolder);
+
+                // Background paths
+                string bg1Path = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
+                string bg2Path = Path.Combine(appBase, "Assets", "Backgrounds", "bg2.png");
+
+                // Render and save with bg1
+                var bitmap1 = _pinRenderer.Render(request, template, bg1Path);
+                string file1Path = Path.Combine(outputFolder, $"{sanitizedTitle}1.png");
+                _fileSaver.Save(bitmap1, file1Path);
+
+                // Render and save with bg2
+                var bitmap2 = _pinRenderer.Render(request, template, bg2Path);
+                string file2Path = Path.Combine(outputFolder, $"{sanitizedTitle}2.png");
+                _fileSaver.Save(bitmap2, file2Path);
+
+                MessageBox.Show($"Images saved to:\n{outputFolder}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while rendering:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void ClearAllSlots()
