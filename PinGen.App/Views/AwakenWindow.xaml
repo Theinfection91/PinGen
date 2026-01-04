@@ -114,9 +114,57 @@
             <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}"/>
             
             <TextBlock Text="Captions" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Captions[0], UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Captions[1], UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding Captions[2], UpdateSourceTrigger=PropertyChanged}"/>
+            
+            <!-- Caption 1 with font size dropdown -->
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" 
+                         TextWrapping="Wrap" 
+                         Text="{Binding Caption1.Text, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,4,0"/>
+                <ComboBox Grid.Column="1" 
+                          Width="50"
+                          ItemsSource="{Binding FontSizeOptions}"
+                          SelectedValue="{Binding Caption1.FontSize}"
+                          ToolTip="Font Size"/>
+            </Grid>
+            
+            <!-- Caption 2 with font size dropdown -->
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" 
+                         TextWrapping="Wrap" 
+                         Text="{Binding Caption2.Text, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,4,0"/>
+                <ComboBox Grid.Column="1" 
+                          Width="50"
+                          ItemsSource="{Binding FontSizeOptions}"
+                          SelectedValue="{Binding Caption2.FontSize}"
+                          ToolTip="Font Size"/>
+            </Grid>
+            
+            <!-- Caption 3 with font size dropdown -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" 
+                         TextWrapping="Wrap" 
+                         Text="{Binding Caption3.Text, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,4,0"/>
+                <ComboBox Grid.Column="1" 
+                          Width="50"
+                          ItemsSource="{Binding FontSizeOptions}"
+                          SelectedValue="{Binding Caption3.FontSize}"
+                          ToolTip="Font Size"/>
+            </Grid>
 
             <!-- Footer with Optional Toggle -->
             <StackPanel Margin="0,0,0,4">
@@ -136,9 +184,9 @@
 
             <Button Content="Clear All Text" HorizontalAlignment="Center" Padding="12,6" Margin="0,0,0,16" />
 
-            <!-- Background Options Section -->
+            <!-- Background Preview Section -->
             <Separator Margin="0,0,0,12" />
-            <TextBlock Text="Background Options" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
+            <TextBlock Text="Background Preview" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
 
             <StackPanel Margin="0,0,0,8">
                 <RadioButton Content="Background 1 (bg1)"
@@ -149,74 +197,6 @@
                              GroupName="BackgroundChoice"
                              IsChecked="{Binding UseBackground2}"
                              Margin="0,0,0,4" />
-                <RadioButton Content="Custom Color"
-                             GroupName="BackgroundChoice"
-                             IsChecked="{Binding UseCustomColor}"
-                             Margin="0,0,0,8" />
-            </StackPanel>
-
-            <!-- Color Palette (visible when Custom Color selected) -->
-            <StackPanel Visibility="{Binding UseCustomColor, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Margin="16,0,0,0">
-                <TextBlock Text="Select Color:" Foreground="#888" Margin="0,0,0,4" />
-                <WrapPanel>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsWhiteSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="White" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsBlackSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="Black" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsRedSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="#E74C3C" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsBlueSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="#3498DB" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsGreenSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="#2ECC71" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsYellowSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="#F1C40F" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsPurpleSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="#9B59B6" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                    <RadioButton GroupName="ColorPalette" Margin="2" IsChecked="{Binding IsOrangeSelected}">
-                        <RadioButton.Template>
-                            <ControlTemplate TargetType="RadioButton">
-                                <Border Width="24" Height="24" Background="#E67E22" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="2" Cursor="Hand" />
-                            </ControlTemplate>
-                        </RadioButton.Template>
-                    </RadioButton>
-                </WrapPanel>
             </StackPanel>
         </StackPanel>
 

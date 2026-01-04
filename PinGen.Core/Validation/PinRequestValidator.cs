@@ -18,7 +18,7 @@ namespace PinGen.Core.Validation
 
             foreach (var caption in request.Captions)
             {
-                if (string.IsNullOrWhiteSpace(caption))
+                if (string.IsNullOrWhiteSpace(caption.Text))
                     return false;
             }
 
