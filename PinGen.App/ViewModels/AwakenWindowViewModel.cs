@@ -4,14 +4,17 @@ using PinGen.Core.Validation;
 using PinGen.ImageProcessing.Interfaces;
 using PinGen.IO.Interfaces;
 using PinGen.Rendering.Interfaces;
+using PinGen.Rendering.Services;
 using PinGen.Templates.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace PinGen.App.ViewModels
@@ -28,6 +31,10 @@ namespace PinGen.App.ViewModels
         private double _titleFontSize = 64;
         private double _subtitleFontSize = 32;
         private double _footerFontSize = 48;
+
+        private FontFamily _titleFontFamily = null!;
+        private FontFamily _subtitleFontFamily = null!;
+        private FontFamily _footerFontFamily = null!;
 
         public string Title
         {
@@ -65,6 +72,24 @@ namespace PinGen.App.ViewModels
             set { _footerFontSize = value; OnPropertyChanged(nameof(FooterFontSize)); }
         }
 
+        public FontFamily TitleFontFamily
+        {
+            get => _titleFontFamily;
+            set { _titleFontFamily = value; OnPropertyChanged(nameof(TitleFontFamily)); }
+        }
+
+        public FontFamily SubtitleFontFamily
+        {
+            get => _subtitleFontFamily;
+            set { _subtitleFontFamily = value; OnPropertyChanged(nameof(SubtitleFontFamily)); }
+        }
+
+        public FontFamily FooterFontFamily
+        {
+            get => _footerFontFamily;
+            set { _footerFontFamily = value; OnPropertyChanged(nameof(FooterFontFamily)); }
+        }
+
         // Captions with font size control
         public CaptionItem Caption1 { get; } = new();
         public CaptionItem Caption2 { get; } = new();
@@ -72,6 +97,12 @@ namespace PinGen.App.ViewModels
 
         // Font size options for dropdowns
         public int[] FontSizeOptions => CaptionItem.AvailableFontSizes;
+
+        // Available fonts - Horizon first, then system fonts
+        public ObservableCollection<FontFamily> AvailableFonts { get; } = new();
+
+        // Default Horizon font family for reference
+        public FontFamily HorizonFontFamily { get; private set; } = null!;
 
         // 8 fixed image slots
         public ItemImage Slot1 { get; } = new() { GroupName = "Slot1Tolerance" };
@@ -160,7 +191,46 @@ namespace PinGen.App.ViewModels
             RenderCommand = new RelayCommand(Render);
             ResetPositionsCommand = new RelayCommand(ResetPositions);
 
+            InitializeFonts();
             UpdateEditorBackground();
+        }
+
+        private void InitializeFonts()
+        {
+            // Create Horizon font family from the loaded typeface
+            string appBase = AppDomain.CurrentDomain.BaseDirectory;
+            string fontPath = Path.Combine(appBase, "Assets", "Fonts", "horizon.otf");
+            
+            if (File.Exists(fontPath))
+            {
+                var uri = new Uri(fontPath);
+                HorizonFontFamily = new FontFamily(uri, "./#Horizon");
+            }
+            else
+            {
+                HorizonFontFamily = new FontFamily("Arial");
+            }
+
+            // Add Horizon first
+            AvailableFonts.Add(HorizonFontFamily);
+
+            // Add system fonts sorted alphabetically
+            var systemFonts = Fonts.SystemFontFamilies
+                .OrderBy(f => f.Source)
+                .ToList();
+
+            foreach (var font in systemFonts)
+            {
+                AvailableFonts.Add(font);
+            }
+
+            // Set defaults to Horizon
+            TitleFontFamily = HorizonFontFamily;
+            SubtitleFontFamily = HorizonFontFamily;
+            FooterFontFamily = HorizonFontFamily;
+            Caption1.FontFamily = HorizonFontFamily;
+            Caption2.FontFamily = HorizonFontFamily;
+            Caption3.FontFamily = HorizonFontFamily;
         }
 
         private BitmapSource? ProcessImageWithWhiteRemoval(string sourcePath, int width, int height)
@@ -213,6 +283,14 @@ namespace PinGen.App.ViewModels
             TitleFontSize = 64;
             SubtitleFontSize = 32;
             FooterFontSize = 48;
+
+            // Reset fonts to Horizon
+            TitleFontFamily = HorizonFontFamily;
+            SubtitleFontFamily = HorizonFontFamily;
+            FooterFontFamily = HorizonFontFamily;
+            Caption1.FontFamily = HorizonFontFamily;
+            Caption2.FontFamily = HorizonFontFamily;
+            Caption3.FontFamily = HorizonFontFamily;
 
             RefreshEditorImageElements();
             SelectedElementName = "Positions reset to defaults";
@@ -324,6 +402,16 @@ namespace PinGen.App.ViewModels
         }
         private List<ElementPosition> GetCaptionPositions() => new() { Caption1Position, Caption2Position, Caption3Position };
 
+        public Typeface GetTitleTypeface() => new(TitleFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+        public Typeface GetSubtitleTypeface() => new(SubtitleFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+        public Typeface GetFooterTypeface() => new(FooterFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+        public List<Typeface> GetCaptionTypefaces() => new()
+        {
+            new Typeface(Caption1.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+            new Typeface(Caption2.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+            new Typeface(Caption3.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal)
+        };
+
         private void Render()
         {
             try
@@ -359,14 +447,16 @@ namespace PinGen.App.ViewModels
                     request, bg1Path, TitlePosition, SubtitlePosition,
                     IsFooterEnabled ? FooterPosition : null,
                     captionPositions, imageElements, numberElements,
-                    TitleFontSize, SubtitleFontSize, FooterFontSize);
+                    TitleFontSize, SubtitleFontSize, FooterFontSize,
+                    GetTitleTypeface(), GetSubtitleTypeface(), GetFooterTypeface(), GetCaptionTypefaces());
                 _fileSaver.Save(bitmap1, Path.Combine(outputFolder, $"{sanitizedTitle}1.png"));
 
                 var bitmap2 = _pinRenderer.RenderWithEditorPositions(
                     request, bg2Path, TitlePosition, SubtitlePosition,
                     IsFooterEnabled ? FooterPosition : null,
                     captionPositions, imageElements, numberElements,
-                    TitleFontSize, SubtitleFontSize, FooterFontSize);
+                    TitleFontSize, SubtitleFontSize, FooterFontSize,
+                    GetTitleTypeface(), GetSubtitleTypeface(), GetFooterTypeface(), GetCaptionTypefaces());
                 _fileSaver.Save(bitmap2, Path.Combine(outputFolder, $"{sanitizedTitle}2.png"));
 
                 MessageBox.Show($"Images saved to:\n{outputFolder}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

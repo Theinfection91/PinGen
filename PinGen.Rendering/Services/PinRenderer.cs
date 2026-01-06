@@ -53,8 +53,8 @@ namespace PinGen.Rendering.Services
 
             context.DrawImage(_imageLoader.Load(backgroundPath), new Rect(0, 0, template.Width, template.Height));
 
-            DrawOutlinedText(context, request.Title, template.TitleArea, 64, 24, 4);
-            DrawOutlinedText(context, request.Subtitle, template.SubtitleArea, 32, 24, 2);
+            DrawOutlinedText(context, request.Title, template.TitleArea, 64, 24, 4, _defaultFont);
+            DrawOutlinedText(context, request.Subtitle, template.SubtitleArea, 32, 24, 2, _defaultFont);
 
             for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
             {
@@ -75,10 +75,10 @@ namespace PinGen.Rendering.Services
             }
 
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
-                DrawOutlinedTextFixed(context, request.Captions[i].Text, template.CaptionAreas[i], request.Captions[i].FontSize, 2);
+                DrawOutlinedTextFixed(context, request.Captions[i].Text, template.CaptionAreas[i], request.Captions[i].FontSize, 2, _defaultFont);
 
             if (!string.IsNullOrEmpty(request.Footer) && template.FooterArea.HasValue)
-                DrawOutlinedText(context, request.Footer, template.FooterArea.Value, 48, 18, 4);
+                DrawOutlinedText(context, request.Footer, template.FooterArea.Value, 48, 18, 4, _defaultFont);
 
             context.Close();
             bitmap.Render(visual);
@@ -90,8 +90,13 @@ namespace PinGen.Rendering.Services
             PinRequest request, string backgroundPath,
             ElementPosition titlePosition, ElementPosition subtitlePosition, ElementPosition? footerPosition,
             List<ElementPosition> captionPositions, List<EditorImageElement> imageElements, List<EditorNumberElement> numberElements,
-            double titleFontSize = 64, double subtitleFontSize = 32, double footerFontSize = 48)
+            double titleFontSize = 64, double subtitleFontSize = 32, double footerFontSize = 48,
+            Typeface? titleFont = null, Typeface? subtitleFont = null, Typeface? footerFont = null, List<Typeface>? captionFonts = null)
         {
+            titleFont ??= _defaultFont;
+            subtitleFont ??= _defaultFont;
+            footerFont ??= _defaultFont;
+
             var bitmap = new RenderTargetBitmap(CanvasWidth, CanvasHeight, 96, 96, PixelFormats.Pbgra32);
             var visual = new DrawingVisual();
             RenderOptions.SetBitmapScalingMode(visual, BitmapScalingMode.HighQuality);
@@ -99,8 +104,8 @@ namespace PinGen.Rendering.Services
             using var context = visual.RenderOpen();
 
             context.DrawImage(_imageLoader.Load(backgroundPath), new Rect(0, 0, CanvasWidth, CanvasHeight));
-            DrawOutlinedTextFixed(context, request.Title, titlePosition.ToRect(), titleFontSize, 4);
-            DrawOutlinedTextFixed(context, request.Subtitle, subtitlePosition.ToRect(), subtitleFontSize, 2);
+            DrawOutlinedTextFixed(context, request.Title, titlePosition.ToRect(), titleFontSize, 4, titleFont);
+            DrawOutlinedTextFixed(context, request.Subtitle, subtitlePosition.ToRect(), subtitleFontSize, 2, subtitleFont);
 
             foreach (var element in imageElements)
             {
@@ -118,11 +123,14 @@ namespace PinGen.Rendering.Services
             for (int i = 0; i < request.Captions.Count && i < captionPositions.Count; i++)
             {
                 if (!string.IsNullOrWhiteSpace(request.Captions[i].Text))
-                    DrawOutlinedTextFixed(context, request.Captions[i].Text, captionPositions[i].ToRect(), request.Captions[i].FontSize, 2);
+                {
+                    var captionFont = captionFonts != null && i < captionFonts.Count ? captionFonts[i] : _defaultFont;
+                    DrawOutlinedTextFixed(context, request.Captions[i].Text, captionPositions[i].ToRect(), request.Captions[i].FontSize, 2, captionFont);
+                }
             }
 
             if (!string.IsNullOrEmpty(request.Footer) && footerPosition != null)
-                DrawOutlinedTextFixed(context, request.Footer, footerPosition.ToRect(), footerFontSize, 4);
+                DrawOutlinedTextFixed(context, request.Footer, footerPosition.ToRect(), footerFontSize, 4, footerFont);
 
             foreach (var num in numberElements)
                 DrawNumber(context, num.Number, num.X, num.Y, num.Scale);
@@ -133,13 +141,13 @@ namespace PinGen.Rendering.Services
             return bitmap;
         }
 
-        private void DrawOutlinedText(DrawingContext ctx, string text, Rect area, double maxSize, double minSize, double stroke)
+        private void DrawOutlinedText(DrawingContext ctx, string text, Rect area, double maxSize, double minSize, double stroke, Typeface font)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
             FormattedText? ft = null;
             for (double size = maxSize; size >= minSize; size--)
             {
-                ft = CreateFormattedText(text, size, area.Width);
+                ft = CreateFormattedText(text, size, area.Width, font);
                 if (ft.Height <= area.Height) break;
                 if (size == minSize) ft.Trimming = TextTrimming.CharacterEllipsis;
             }
@@ -150,10 +158,10 @@ namespace PinGen.Rendering.Services
             ctx.DrawGeometry(Brushes.Black, null, geo);
         }
 
-        private void DrawOutlinedTextFixed(DrawingContext ctx, string text, Rect area, double fontSize, double stroke)
+        private void DrawOutlinedTextFixed(DrawingContext ctx, string text, Rect area, double fontSize, double stroke, Typeface font)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
-            var ft = CreateFormattedText(text, fontSize, area.Width);
+            var ft = CreateFormattedText(text, fontSize, area.Width, font);
             ft.Trimming = TextTrimming.CharacterEllipsis;
             var origin = new Point(area.X, area.Y + (area.Height - ft.Height) / 2);
             var geo = ft.BuildGeometry(origin);
@@ -171,8 +179,8 @@ namespace PinGen.Rendering.Services
             ctx.DrawText(main, new Point(x, y));
         }
 
-        private static FormattedText CreateFormattedText(string text, double fontSize, double maxWidth) =>
-            new(text, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _defaultFont, fontSize, Brushes.Black, 1.0)
+        private static FormattedText CreateFormattedText(string text, double fontSize, double maxWidth, Typeface font) =>
+            new(text, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, font, fontSize, Brushes.Black, 1.0)
             {
                 MaxTextWidth = maxWidth,
                 TextAlignment = TextAlignment.Center,

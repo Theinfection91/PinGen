@@ -115,6 +115,11 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Font ComboBox Item Template -->
+        <DataTemplate x:Key="FontItemTemplate">
+            <TextBlock Text="{Binding Source}" FontFamily="{Binding}" FontSize="14" />
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Margin="16">
@@ -131,7 +136,7 @@
                 <TextBlock Text="Title" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
                 <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="50" Margin="0,0,0,4" 
                          Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
-                <Grid Margin="0,0,0,12">
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
@@ -144,12 +149,24 @@
                     <TextBlock Grid.Column="2" Text="{Binding TitleFontSize, StringFormat='{}{0:F0}'}" 
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding TitleFontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
 
                 <!-- Subtitle -->
                 <TextBlock Text="Subtitle" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
                 <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="50" Margin="0,0,0,4" 
                          Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}"/>
-                <Grid Margin="0,0,0,12">
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
@@ -162,12 +179,25 @@
                     <TextBlock Grid.Column="2" Text="{Binding SubtitleFontSize, StringFormat='{}{0:F0}'}" 
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding SubtitleFontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
                 
                 <!-- Captions -->
                 <TextBlock Text="Captions" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
                 
+                <!-- Caption 1 -->
                 <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption1.Text, UpdateSourceTrigger=PropertyChanged}"/>
-                <Grid Margin="0,0,0,8">
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
@@ -180,9 +210,22 @@
                     <TextBlock Grid.Column="2" Text="{Binding Caption1.FontSize, StringFormat='{}{0:F0}'}" 
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
-                
-                <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption2.Text, UpdateSourceTrigger=PropertyChanged}"/>
                 <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding Caption1.FontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
+                
+                <!-- Caption 2 -->
+                <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption2.Text, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
@@ -195,9 +238,22 @@
                     <TextBlock Grid.Column="2" Text="{Binding Caption2.FontSize, StringFormat='{}{0:F0}'}" 
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding Caption2.FontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
                 
+                <!-- Caption 3 -->
                 <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption3.Text, UpdateSourceTrigger=PropertyChanged}"/>
-                <Grid Margin="0,0,0,12">
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
@@ -210,13 +266,25 @@
                     <TextBlock Grid.Column="2" Text="{Binding Caption3.FontSize, StringFormat='{}{0:F0}'}" 
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding Caption3.FontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
 
                 <!-- Footer -->
                 <CheckBox Content="Enable Footer" IsChecked="{Binding IsFooterEnabled}"
                           HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,4" />
                 <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="50" Margin="0,0,0,4"
                          IsEnabled="{Binding IsFooterEnabled}" Text="{Binding Footer, UpdateSourceTrigger=PropertyChanged}"/>
-                <Grid Margin="0,0,0,12" IsEnabled="{Binding IsFooterEnabled}">
+                <Grid Margin="0,0,0,4" IsEnabled="{Binding IsFooterEnabled}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
@@ -228,6 +296,18 @@
                             TickFrequency="2" IsSnapToTickEnabled="True" />
                     <TextBlock Grid.Column="2" Text="{Binding FooterFontSize, StringFormat='{}{0:F0}'}" 
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,8" IsEnabled="{Binding IsFooterEnabled}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding FooterFontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
                 </Grid>
 
                 <Button Content="Clear All Text" 

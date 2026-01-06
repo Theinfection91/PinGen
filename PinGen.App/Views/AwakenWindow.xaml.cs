@@ -85,7 +85,9 @@ namespace PinGen.App.Views
             if (e.PropertyName is nameof(AwakenWindowViewModel.Title) or nameof(AwakenWindowViewModel.TitleFontSize)
                 or nameof(AwakenWindowViewModel.Subtitle) or nameof(AwakenWindowViewModel.SubtitleFontSize)
                 or nameof(AwakenWindowViewModel.Footer) or nameof(AwakenWindowViewModel.FooterFontSize)
-                or nameof(AwakenWindowViewModel.IsFooterEnabled))
+                or nameof(AwakenWindowViewModel.IsFooterEnabled)
+                or nameof(AwakenWindowViewModel.TitleFontFamily) or nameof(AwakenWindowViewModel.SubtitleFontFamily)
+                or nameof(AwakenWindowViewModel.FooterFontFamily))
             {
                 RebuildTextElementsOnCanvas();
             }
@@ -168,13 +170,29 @@ namespace PinGen.App.Views
             _lastCycleIndex = 0;
         }
 
+        private Typeface GetTypefaceForElement(string tag)
+        {
+            if (DataContext is not AwakenWindowViewModel vm) return _horizonFont!;
+
+            return tag switch
+            {
+                "Title" => new Typeface(vm.TitleFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                "Subtitle" => new Typeface(vm.SubtitleFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                "Footer" => new Typeface(vm.FooterFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                "Caption1" => new Typeface(vm.Caption1.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                "Caption2" => new Typeface(vm.Caption2.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                "Caption3" => new Typeface(vm.Caption3.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                _ => _horizonFont!
+            };
+        }
+
         private void RebuildTextElementsOnCanvas()
         {
             foreach (var border in _textElementBorders)
                 EditorCanvas.Children.Remove(border);
             _textElementBorders.Clear();
 
-            if (DataContext is not AwakenWindowViewModel vm || _horizonFont == null) return;
+            if (DataContext is not AwakenWindowViewModel vm) return;
 
             var titleBorder = CreateOutlinedTextElement(vm.Title, vm.TitlePosition, vm.TitleFontSize, 4, "Title");
             _textElementBorders.Add(titleBorder);
@@ -206,6 +224,7 @@ namespace PinGen.App.Views
 
         private Border CreateOutlinedTextElement(string text, ElementPosition pos, double fontSize, double strokeWidth, string tag, Color? bgColor = null)
         {
+            var typeface = GetTypefaceForElement(tag);
             var path = new Path();
             double actualTextHeight = pos.Height;
 
@@ -215,7 +234,7 @@ namespace PinGen.App.Views
                     text,
                     System.Globalization.CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
-                    _horizonFont!,
+                    typeface,
                     fontSize,
                     Brushes.Black,
                     1.0)
@@ -456,13 +475,11 @@ namespace PinGen.App.Views
         {
             if (element is Border border && border.Tag is EditorNumberElement)
             {
-                // Number elements stay in their high Z-index range
                 _currentNumberZIndex++;
                 Canvas.SetZIndex(element, NumberElementBaseZIndex + _currentNumberZIndex);
             }
             else
             {
-                // Non-number elements use their own counter, capped below NumberElementBaseZIndex
                 _currentNonNumberZIndex++;
                 if (_currentNonNumberZIndex >= NumberElementBaseZIndex)
                     _currentNonNumberZIndex = 1;
