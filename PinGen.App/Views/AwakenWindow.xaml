@@ -334,20 +334,57 @@
             <Border Grid.Row="0" Background="#2a2a2a" Padding="8" Margin="0,0,0,8" CornerRadius="4">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     
+                    <!-- Help Icon with Tooltip -->
+                    <Border Grid.Column="0" 
+                            Background="#444" 
+                            CornerRadius="10" 
+                            Width="20" 
+                            Height="20" 
+                            Margin="0,0,8,0"
+                            Cursor="Help"
+                            ToolTipService.InitialShowDelay="100"
+                            ToolTipService.ShowDuration="30000"
+                            ToolTipService.HasDropShadow="True">
+                        <Border.ToolTip>
+                            <ToolTip MaxWidth="280">
+                                <StackPanel Margin="4">
+                                    <TextBlock Text="Editor Controls" FontWeight="Bold" Margin="0,0,0,8" />
+                                    <TextBlock Text="🖱️ Left-Click + Drag" FontWeight="SemiBold" />
+                                    <TextBlock Text="Select and move any element" Foreground="Gray" Margin="0,0,0,6" />
+                                    <TextBlock Text="🖱️ Right-Click" FontWeight="SemiBold" />
+                                    <TextBlock Text="Cycle through overlapping elements" Foreground="Gray" Margin="0,0,0,6" />
+                                    <TextBlock Text="📌 Auto Bring-to-Front" FontWeight="SemiBold" />
+                                    <TextBlock Text="Clicked elements come to front of their layer" Foreground="Gray" Margin="0,0,0,6" />
+                                    <Separator Margin="0,4" />
+                                    <TextBlock Text="⚠️ Numbers always preview/render on top of images and text" 
+                                               Foreground="#FFD700" 
+                                               TextWrapping="Wrap" 
+                                               FontStyle="Italic" />
+                                </StackPanel>
+                            </ToolTip>
+                        </Border.ToolTip>
+                        <TextBlock Text="?" 
+                                   Foreground="#AAA" 
+                                   FontWeight="Bold" 
+                                   FontSize="12"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    
                     <!-- Selected Element Info -->
-                    <TextBlock Grid.Column="0" 
+                    <TextBlock Grid.Column="1" 
                                Text="{Binding SelectedElementName, FallbackValue='Drag elements to reposition'}"
                                Foreground="#888"
                                VerticalAlignment="Center"
-                               HorizontalAlignment="Left"
-                               Margin="4,0,0,0" />
+                               HorizontalAlignment="Left" />
                     
                     <!-- Reset Positions Button -->
-                    <Button Grid.Column="1"
+                    <Button Grid.Column="2"
                             Content="↺ Reset Positions"
                             Command="{Binding ResetPositionsCommand}"
                             Padding="8,4"
