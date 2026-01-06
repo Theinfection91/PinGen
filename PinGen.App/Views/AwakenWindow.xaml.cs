@@ -31,6 +31,11 @@ namespace PinGen.App.Views
         
         private int _currentMaxZIndex = 0;
 
+        // Track cycling state
+        private List<Border>? _lastCycleElements;
+        private int _lastCycleIndex;
+        private Point _lastCyclePoint;
+
         // Supported image extensions for batch loading
         private static readonly string[] SupportedImageExtensions = { ".png", ".jpg", ".jpeg", ".bmp", ".gif" };
 
@@ -150,9 +155,16 @@ namespace PinGen.App.Views
         private void RebuildAllCanvasElements()
         {
             _currentMaxZIndex = 0;
+            ResetCycleState();
             RebuildTextElementsOnCanvas();
             RebuildImageElementsOnCanvas();
             RebuildNumberElementsOnCanvas();
+        }
+
+        private void ResetCycleState()
+        {
+            _lastCycleElements = null;
+            _lastCycleIndex = 0;
         }
 
         private void RebuildTextElementsOnCanvas()
@@ -332,7 +344,8 @@ namespace PinGen.App.Views
             double size = 80 * element.Scale;
             var border = new Border
             {
-                Width = size, Height = size, Tag = element, Background = Brushes.Transparent,
+                Width = size, Height = size, Tag = element,
+                Background = new SolidColorBrush(Color.FromArgb(0x01, 0x00, 0x00, 0x00)),
                 BorderBrush = new SolidColorBrush(Color.FromArgb(0x80, 0xFF, 0xFF, 0x00)),
                 BorderThickness = new Thickness(2), Cursor = Cursors.SizeAll, Child = grid
             };
@@ -448,6 +461,9 @@ namespace PinGen.App.Views
             Canvas.SetZIndex(element, _currentMaxZIndex);
         }
 
+        /// <summary>
+        /// Gets all elements whose bounds contain the point (ignores Z-index for detection).
+        /// </summary>
         private List<Border> GetElementsAtPoint(Point point)
         {
             var allElements = _textElementBorders
@@ -471,7 +487,8 @@ namespace PinGen.App.Views
                 }
             }
 
-            return elementsAtPoint.OrderByDescending(e => Canvas.GetZIndex(e)).ToList();
+            // Return in consistent order (by original list order, not Z-index)
+            return elementsAtPoint;
         }
 
         private string GetElementDisplayName(FrameworkElement element)
@@ -493,6 +510,9 @@ namespace PinGen.App.Views
 
             var clickPoint = e.GetPosition(EditorCanvas);
 
+            // Reset cycle state on left-click
+            ResetCycleState();
+
             BringToFront(element);
             
             _isDragging = true;
@@ -511,25 +531,43 @@ namespace PinGen.App.Views
             e.Handled = true;
         }
 
+        /// <summary>
+        /// Right-click cycles through all overlapping elements at that point.
+        /// </summary>
         private void DraggableElement_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement element) return;
 
             var clickPoint = e.GetPosition(EditorCanvas);
-            var elementsAtPoint = GetElementsAtPoint(clickPoint);
 
-            if (elementsAtPoint.Count > 1)
+            // Check if we're continuing a cycle at the same location
+            bool isSameLocation = _lastCycleElements != null &&
+                                  Math.Abs(clickPoint.X - _lastCyclePoint.X) < 5 &&
+                                  Math.Abs(clickPoint.Y - _lastCyclePoint.Y) < 5;
+
+            if (!isSameLocation)
             {
-                int currentIndex = elementsAtPoint.IndexOf((Border)element);
-                int nextIndex = (currentIndex + 1) % elementsAtPoint.Count;
-                var nextElement = elementsAtPoint[nextIndex];
+                // New location - rebuild the cycle list
+                _lastCycleElements = GetElementsAtPoint(clickPoint);
+                _lastCyclePoint = clickPoint;
+                _lastCycleIndex = 0;
+            }
 
-                BringToFront(nextElement);
+            if (_lastCycleElements == null || _lastCycleElements.Count <= 1)
+            {
+                e.Handled = true;
+                return;
+            }
 
-                if (DataContext is AwakenWindowViewModel vm)
-                {
-                    vm.SelectedElementName = GetElementDisplayName(nextElement) + " (Right-click to cycle)";
-                }
+            // Move to next element in cycle
+            _lastCycleIndex = (_lastCycleIndex + 1) % _lastCycleElements.Count;
+            var nextElement = _lastCycleElements[_lastCycleIndex];
+
+            BringToFront(nextElement);
+
+            if (DataContext is AwakenWindowViewModel vm)
+            {
+                vm.SelectedElementName = $"{GetElementDisplayName(nextElement)} ({_lastCycleIndex + 1}/{_lastCycleElements.Count})";
             }
 
             e.Handled = true;
