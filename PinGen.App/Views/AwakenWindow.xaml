@@ -50,23 +50,22 @@
                             ToolTip="Clear this slot" />
                 </Grid>
 
-                <!-- Scale slider -->
+                <!-- Image Scale slider -->
                 <Grid Margin="0,4,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="50" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="40" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0"
-                               Text="Scale"
+                               Text="Image"
                                Foreground="Black"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0" />
+                               VerticalAlignment="Center" />
                     <Slider Grid.Column="1"
-                            Minimum="0.5"
-                            Maximum="2.0"
-                            Value="{Binding Scale}"
+                            Minimum="0.1"
+                            Maximum="5.0"
+                            Value="{Binding Scale, UpdateSourceTrigger=PropertyChanged}"
                             TickFrequency="0.1"
                             IsSnapToTickEnabled="True"
                             VerticalAlignment="Center" />
@@ -77,26 +76,49 @@
                                HorizontalAlignment="Right" />
                 </Grid>
 
-                <!-- White Removal Options -->
-                <!--
-                <StackPanel Margin="0,8,0,0">
-                    <CheckBox IsChecked="{Binding EnableWhiteRemoval}"
-                              Margin="0,0,0,4">
-                        <TextBlock Text="Enable White Removal"
-                                   Foreground="{Binding EnableWhiteRemoval, Converter={StaticResource BoolToColorConverter}}" />
-                    </CheckBox>
-                    <StackPanel Visibility="{Binding EnableWhiteRemoval, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Margin="16,0,0,0">
-                        <RadioButton GroupName="{Binding GroupName}"
-                                     IsChecked="{Binding IsOption1Selected}"
-                                     Margin="0,0,0,2">
-                            <TextBlock Text="1"
-                                       Foreground="{Binding EnableWhiteRemoval, Converter={StaticResource BoolToColorConverter}}" />
-                        </RadioButton>
-                    </StackPanel>
-                </StackPanel>
-                -->
+                <!-- Number Scale slider -->
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="40" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="Number"
+                               Foreground="Black"
+                               VerticalAlignment="Center" />
+                    <Slider Grid.Column="1"
+                            Minimum="0.3"
+                            Maximum="3.0"
+                            Value="{Binding NumberScale, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="0.1"
+                            IsSnapToTickEnabled="True"
+                            VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding NumberScale, StringFormat='{}{0:F1}x'}"
+                               Foreground="Black"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right" />
+                </Grid>
             </StackPanel>
+        </DataTemplate>
+        
+        <!-- Style for draggable editor elements -->
+        <Style x:Key="DraggableElementStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Cursor" Value="SizeAll" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#00BFFF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Font ComboBox Item Template -->
+        <DataTemplate x:Key="FontItemTemplate">
+            <TextBlock Text="{Binding Source}" FontFamily="{Binding}" FontSize="14" />
         </DataTemplate>
     </Window.Resources>
 
@@ -107,125 +129,310 @@
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
 
-        <!-- Column 0: Text Inputs -->
-        <StackPanel Grid.Column="0" Margin="0,0,16,0">
-            <TextBlock Text="Title" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
+        <!-- Column 0: Text Inputs with Font Size Sliders -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,16,0">
+            <StackPanel>
+                <!-- Title -->
+                <TextBlock Text="Title" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
+                <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="50" Margin="0,0,0,4" 
+                         Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="30" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" Foreground="Gray" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Minimum="24" Maximum="96" 
+                            Value="{Binding TitleFontSize, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="2" IsSnapToTickEnabled="True" />
+                    <TextBlock Grid.Column="2" Text="{Binding TitleFontSize, StringFormat='{}{0:F0}'}" 
+                               Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding TitleFontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
 
-            <TextBlock Text="Subtitle" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}"/>
-            
-            <TextBlock Text="Captions" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
-            
-            <!-- Caption 1 with font size dropdown -->
-            <Grid Margin="0,0,0,4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" 
-                         TextWrapping="Wrap" 
-                         Text="{Binding Caption1.Text, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,4,0"/>
-                <ComboBox Grid.Column="1" 
-                          Width="50"
-                          ItemsSource="{Binding FontSizeOptions}"
-                          SelectedValue="{Binding Caption1.FontSize}"
-                          ToolTip="Font Size"/>
-            </Grid>
-            
-            <!-- Caption 2 with font size dropdown -->
-            <Grid Margin="0,0,0,4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" 
-                         TextWrapping="Wrap" 
-                         Text="{Binding Caption2.Text, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,4,0"/>
-                <ComboBox Grid.Column="1" 
-                          Width="50"
-                          ItemsSource="{Binding FontSizeOptions}"
-                          SelectedValue="{Binding Caption2.FontSize}"
-                          ToolTip="Font Size"/>
-            </Grid>
-            
-            <!-- Caption 3 with font size dropdown -->
-            <Grid Margin="0,0,0,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" 
-                         TextWrapping="Wrap" 
-                         Text="{Binding Caption3.Text, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,4,0"/>
-                <ComboBox Grid.Column="1" 
-                          Width="50"
-                          ItemsSource="{Binding FontSizeOptions}"
-                          SelectedValue="{Binding Caption3.FontSize}"
-                          ToolTip="Font Size"/>
-            </Grid>
+                <!-- Subtitle -->
+                <TextBlock Text="Subtitle" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
+                <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="50" Margin="0,0,0,4" 
+                         Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="30" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" Foreground="Gray" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Minimum="16" Maximum="64" 
+                            Value="{Binding SubtitleFontSize, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="2" IsSnapToTickEnabled="True" />
+                    <TextBlock Grid.Column="2" Text="{Binding SubtitleFontSize, StringFormat='{}{0:F0}'}" 
+                               Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding SubtitleFontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
+                
+                <!-- Captions -->
+                <TextBlock Text="Captions" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center" />
+                
+                <!-- Caption 1 -->
+                <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption1.Text, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="30" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" Foreground="Gray" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Minimum="12" Maximum="48" 
+                            Value="{Binding Caption1.FontSize, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="2" IsSnapToTickEnabled="True" />
+                    <TextBlock Grid.Column="2" Text="{Binding Caption1.FontSize, StringFormat='{}{0:F0}'}" 
+                               Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding Caption1.FontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
+                
+                <!-- Caption 2 -->
+                <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption2.Text, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="30" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" Foreground="Gray" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Minimum="12" Maximum="48" 
+                            Value="{Binding Caption2.FontSize, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="2" IsSnapToTickEnabled="True" />
+                    <TextBlock Grid.Column="2" Text="{Binding Caption2.FontSize, StringFormat='{}{0:F0}'}" 
+                               Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding Caption2.FontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
+                
+                <!-- Caption 3 -->
+                <TextBox TextWrapping="Wrap" Margin="0,0,0,4" Text="{Binding Caption3.Text, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="30" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" Foreground="Gray" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Minimum="12" Maximum="48" 
+                            Value="{Binding Caption3.FontSize, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="2" IsSnapToTickEnabled="True" />
+                    <TextBlock Grid.Column="2" Text="{Binding Caption3.FontSize, StringFormat='{}{0:F0}'}" 
+                               Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding Caption3.FontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
 
-            <!-- Footer with Optional Toggle -->
-            <StackPanel Margin="0,0,0,4">
-                <CheckBox x:Name="EnableFooterCheckBox"
-                          Content="Enable Footer"
-                          IsChecked="{Binding IsFooterEnabled}"
-                          HorizontalAlignment="Center"
-                          FontWeight="Bold"
-                          Margin="0,0,0,4" />
+                <!-- Footer -->
+                <CheckBox Content="Enable Footer" IsChecked="{Binding IsFooterEnabled}"
+                          HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,4" />
+                <TextBox AcceptsReturn="True" TextWrapping="Wrap" Height="50" Margin="0,0,0,4"
+                         IsEnabled="{Binding IsFooterEnabled}" Text="{Binding Footer, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Margin="0,0,0,4" IsEnabled="{Binding IsFooterEnabled}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="30" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" Foreground="Gray" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Minimum="18" Maximum="72" 
+                            Value="{Binding FooterFontSize, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="2" IsSnapToTickEnabled="True" />
+                    <TextBlock Grid.Column="2" Text="{Binding FooterFontSize, StringFormat='{}{0:F0}'}" 
+                               Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Margin="0,0,0,8" IsEnabled="{Binding IsFooterEnabled}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Font" Foreground="Gray" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding FooterFontFamily}"
+                              ItemTemplate="{StaticResource FontItemTemplate}"
+                              MaxDropDownHeight="300" />
+                </Grid>
+
+                <Button Content="Clear All Text" 
+                        HorizontalAlignment="Center" 
+                        Padding="12,6" 
+                        Margin="0,0,0,16" 
+                        Click="ClearAllText_Click" />
+
+                <Separator Margin="0,0,0,12" />
+                <TextBlock Text="Background Preview" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
+                <RadioButton Content="Background 1" GroupName="BackgroundChoice" IsChecked="{Binding UseBackground1}" Margin="0,0,0,4" />
+                <RadioButton Content="Background 2" GroupName="BackgroundChoice" IsChecked="{Binding UseBackground2}" Margin="0,0,0,4" />
             </StackPanel>
-            <TextBox AcceptsReturn="True" 
-                     TextWrapping="Wrap" 
-                     Height="60" 
-                     Margin="0,0,0,12"
-                     IsEnabled="{Binding IsFooterEnabled}"
-                     Opacity="{Binding IsFooterEnabled, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Opacity}" Text="{Binding Footer, UpdateSourceTrigger=PropertyChanged}"/>
+        </ScrollViewer>
 
-            <Button Content="Clear All Text" HorizontalAlignment="Center" Padding="12,6" Margin="0,0,0,16" />
+        <!-- Column 1: Editor Canvas Area (Always Edit Mode) -->
+        <Grid Grid.Column="1" Margin="0,0,16,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <!-- Background Preview Section -->
-            <Separator Margin="0,0,0,12" />
-            <TextBlock Text="Background Preview" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
-
-            <StackPanel Margin="0,0,0,8">
-                <RadioButton Content="Background 1 (bg1)"
-                             GroupName="BackgroundChoice"
-                             IsChecked="{Binding UseBackground1}"
-                             Margin="0,0,0,4" />
-                <RadioButton Content="Background 2 (bg2)"
-                             GroupName="BackgroundChoice"
-                             IsChecked="{Binding UseBackground2}"
-                             Margin="0,0,0,4" />
-            </StackPanel>
-        </StackPanel>
-
-        <!-- Column 1: Preview Area with 2:3 aspect ratio (1000x1500) -->
-        <Border Grid.Column="1"
-                Background="#1a1a1a"
-                BorderBrush="#333"
-                BorderThickness="1"
-                Margin="0,0,16,0">
-            <Viewbox Stretch="Uniform" StretchDirection="Both">
-                <Border Width="1000" Height="1500" Background="#222">
-                    <Grid>
-                        <TextBlock Text="Preview"
-                                   Foreground="#666"
-                                   FontSize="48"
-                                   HorizontalAlignment="Center"
+            <!-- Editor Toolbar -->
+            <Border Grid.Row="0" Background="#2a2a2a" Padding="8" Margin="0,0,0,8" CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Help Icon with Tooltip -->
+                    <Border Grid.Column="0" 
+                            Background="#444" 
+                            CornerRadius="10" 
+                            Width="20" 
+                            Height="20" 
+                            Margin="0,0,8,0"
+                            Cursor="Help"
+                            ToolTipService.InitialShowDelay="100"
+                            ToolTipService.ShowDuration="30000"
+                            ToolTipService.HasDropShadow="True">
+                        <Border.ToolTip>
+                            <ToolTip MaxWidth="280">
+                                <StackPanel Margin="4">
+                                    <TextBlock Text="Editor Controls" FontWeight="Bold" Margin="0,0,0,8" />
+                                    <TextBlock Text="🖱️ Left-Click + Drag" FontWeight="SemiBold" />
+                                    <TextBlock Text="Select and move any element" Foreground="Gray" Margin="0,0,0,6" />
+                                    <TextBlock Text="🖱️ Right-Click" FontWeight="SemiBold" />
+                                    <TextBlock Text="Cycle through overlapping elements" Foreground="Gray" Margin="0,0,0,6" />
+                                    <TextBlock Text="📌 Auto Bring-to-Front" FontWeight="SemiBold" />
+                                    <TextBlock Text="Clicked elements come to front of their layer" Foreground="Gray" Margin="0,0,0,6" />
+                                    <Separator Margin="0,4" />
+                                    <TextBlock Text="⚠️ Numbers always preview/render on top of images and text" 
+                                               Foreground="#FFD700" 
+                                               TextWrapping="Wrap" 
+                                               FontStyle="Italic" />
+                                </StackPanel>
+                            </ToolTip>
+                        </Border.ToolTip>
+                        <TextBlock Text="?" 
+                                   Foreground="#AAA" 
+                                   FontWeight="Bold" 
+                                   FontSize="12"
+                                   HorizontalAlignment="Center" 
                                    VerticalAlignment="Center" />
-                        <!-- Future: Image control bound to preview bitmap -->
-                        <Image Source="{Binding PreviewImage}" Stretch="Uniform" />
-                    </Grid>
-                </Border>
-            </Viewbox>
-        </Border>
+                    </Border>
+                    
+                    <!-- Selected Element Info -->
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding SelectedElementName, FallbackValue='Drag elements to reposition'}"
+                               Foreground="#888"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left" />
+                    
+                    <!-- Reset Positions Button -->
+                    <Button Grid.Column="2"
+                            Content="↺ Reset Positions"
+                            Command="{Binding ResetPositionsCommand}"
+                            Padding="8,4"
+                            ToolTip="Reset all elements to default template positions" />
+                </Grid>
+            </Border>
+            
+            <!-- Editor Canvas Area -->
+            <Border Grid.Row="1"
+                    Background="#1a1a1a"
+                    BorderBrush="#333"
+                    BorderThickness="1">
+                <Viewbox Stretch="Uniform" StretchDirection="Both"
+                         RenderOptions.BitmapScalingMode="HighQuality">
+                    <Border Width="1000" Height="1500" Background="#222"
+                            RenderOptions.BitmapScalingMode="HighQuality">
+                        <Canvas x:Name="EditorCanvas"
+                                Width="1000"
+                                Height="1500"
+                                Background="Transparent"
+                                ClipToBounds="False"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                RenderOptions.EdgeMode="Aliased"
+                                TextOptions.TextFormattingMode="Display"
+                                TextOptions.TextRenderingMode="ClearType">
+							
+                            <!-- Background Image Layer -->
+                            <Image x:Name="EditorBackgroundImage"
+                                   Source="{Binding EditorBackgroundImage}"
+                                   Width="1000"
+                                   Height="1500"
+                                   Canvas.Left="0"
+                                   Canvas.Top="0"
+                                   IsHitTestVisible="False"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
+                            
+                            <!-- All other elements created dynamically in code-behind -->
+                            
+                        </Canvas>
+                    </Border>
+                </Viewbox>
+            </Border>
+        </Grid>
 
         <!-- Column 2: Image Slots Panel -->
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
@@ -234,10 +441,32 @@
             <TextBlock Grid.Row="0"
                        Text="Item Images"
                        FontWeight="Bold"
-                       Margin="0,0,0,8" />
+                       Margin="0,0,0,4" />
+            
+            <!-- Batch Load Button -->
+            <Button Grid.Row="0"
+                    Content="📁 Load Folder"
+                    HorizontalAlignment="Right"
+                    Padding="8,2"
+                    Click="LoadFolder_Click"
+                    ToolTip="Load 4-8 images from a folder" />
+
+            <!-- Warning/Info message -->
+            <Border Grid.Row="1" 
+                    Background="#3A2A00" 
+                    BorderBrush="#FFA500" 
+                    BorderThickness="1" 
+                    CornerRadius="4" 
+                    Padding="8" 
+                    Margin="0,0,0,8">
+                <TextBlock Text="⚠️ Select ALL images first, then position. Adding images resets positions."
+                           Foreground="#FFD700"
+                           FontSize="11"
+                           TextWrapping="Wrap" />
+            </Border>
 
             <!-- Scrollable 8 Expander Slots -->
-            <ScrollViewer Grid.Row="1" 
+            <ScrollViewer Grid.Row="2" 
                           VerticalScrollBarVisibility="Auto"
                           Margin="0,0,0,12">
                 <StackPanel>
@@ -277,16 +506,12 @@
             </ScrollViewer>
 
             <!-- Bottom Buttons -->
-            <StackPanel Grid.Row="2" Orientation="Vertical">
+            <StackPanel Grid.Row="3" Orientation="Vertical">
                 <Button Content="Clear All Images"
                         Margin="0,0,0,8"
                         Padding="8,6"
                         Click="ClearImages_Click" />
                 <Separator Margin="0,4,0,12" />
-                <Button Content="Generate Preview"
-                        Command="{Binding GeneratePreviewCommand}"
-                        Padding="8,6"
-                        Margin="0,0,0,8" />
                 <Button Content="Render &amp; Save"
                         Command="{Binding RenderCommand}"
                         Padding="8,6"

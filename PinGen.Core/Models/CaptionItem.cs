@@ -1,10 +1,11 @@
 using System.ComponentModel;
+using System.Windows.Media;
 
 namespace PinGen.Core.Models
 {
     public class CaptionItem : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -15,11 +16,18 @@ namespace PinGen.Core.Models
             set { _text = value; OnPropertyChanged(nameof(Text)); }
         }
 
-        private int _fontSize = 22;  // Changed from 20 to match first option
+        private int _fontSize = 22;
         public int FontSize
         {
             get => _fontSize;
             set { _fontSize = value; OnPropertyChanged(nameof(FontSize)); }
+        }
+
+        private FontFamily _fontFamily = null!;
+        public FontFamily FontFamily
+        {
+            get => _fontFamily;
+            set { _fontFamily = value; OnPropertyChanged(nameof(FontFamily)); }
         }
 
         // Available font sizes for dropdown

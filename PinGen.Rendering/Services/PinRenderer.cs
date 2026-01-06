@@ -6,7 +6,6 @@ using PinGen.Rendering.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -15,294 +14,191 @@ namespace PinGen.Rendering.Services
 {
     public class PinRenderer : IPinRenderer
     {
-        private readonly IFontLoader _fontLoader;
         private readonly IImageLoader _imageLoader;
         private readonly IImageProcessor _imageProcessor;
-
-        private static Typeface defaultFont;
+        private static Typeface _defaultFont = null!;
         private readonly string _defaultBackgroundPath;
+
+        private const int CanvasWidth = 1000;
+        private const int CanvasHeight = 1500;
 
         public PinRenderer(IFontLoader fontLoader, IImageLoader imageLoader, IImageProcessor imageProcessor)
         {
-            _fontLoader = fontLoader;
             _imageLoader = imageLoader;
             _imageProcessor = imageProcessor;
 
-            // Load default font from base app domain directory
             string appBase = AppDomain.CurrentDomain.BaseDirectory;
-            defaultFont = _fontLoader.Load(
-                Path.Combine(appBase, "Assets", "Fonts", "horizon.otf"),
-                "Horizon");
-
+            _defaultFont = fontLoader.Load(Path.Combine(appBase, "Assets", "Fonts", "horizon.otf"), "Horizon");
             _defaultBackgroundPath = Path.Combine(appBase, "Assets", "Backgrounds", "bg1.png");
         }
 
+        public static Typeface DefaultFont => _defaultFont;
+
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template)
-        {
-            return Render(request, template, _defaultBackgroundPath, null);
-        }
+            => Render(request, template, _defaultBackgroundPath, null);
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, List<double> yOffsets)
-        {
-            return Render(request, template, _defaultBackgroundPath, yOffsets);
-        }
+            => Render(request, template, _defaultBackgroundPath, yOffsets);
 
         public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath)
-        {
-            return Render(request, template, backgroundPath, null);
-        }
+            => Render(request, template, backgroundPath, null);
 
-        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath, List<double> yOffsets)
+        public RenderTargetBitmap Render(PinRequest request, TemplateDefinition template, string backgroundPath, List<double>? yOffsets)
         {
-            var bitmap = new RenderTargetBitmap(
-                template.Width,
-                template.Height,
-                96,
-                96,
-                PixelFormats.Pbgra32);
-
+            var bitmap = new RenderTargetBitmap(template.Width, template.Height, 96, 96, PixelFormats.Pbgra32);
             var visual = new DrawingVisual();
-
             RenderOptions.SetBitmapScalingMode(visual, BitmapScalingMode.HighQuality);
-            RenderOptions.SetEdgeMode(visual, EdgeMode.Unspecified);
 
             using var context = visual.RenderOpen();
 
-            // Background
-            var background = _imageLoader.Load(backgroundPath);
-            context.DrawImage(background, new Rect(0, 0, template.Width, template.Height));
+            context.DrawImage(_imageLoader.Load(backgroundPath), new Rect(0, 0, template.Width, template.Height));
 
-            // Title (black fill + white stroke)
-            DrawOutlinedTextAutoFit(
-                context,
-                request.Title,
-                template.TitleArea,
-                64,
-                24,
-                Brushes.Black,
-                Brushes.White,
-                4,
-                TextAlignment.Center);
+            DrawOutlinedText(context, request.Title, template.TitleArea, 64, 24, 4, _defaultFont);
+            DrawOutlinedText(context, request.Subtitle, template.SubtitleArea, 32, 24, 2, _defaultFont);
 
-            // Subtitle (black fill + white stroke)
-            DrawOutlinedTextAutoFit(
-                context,
-                request.Subtitle,
-                template.SubtitleArea,
-                32,
-                24,
-                Brushes.Black,
-                Brushes.White,
-                2,
-                TextAlignment.Center);
-
-            // Images
             for (int i = 0; i < request.ItemImages.Count && i < template.TemplateSlots.Count; i++)
             {
                 var slot = template.TemplateSlots[i];
-
-                // Calculate scaled and clamped rect
                 var scaledRect = GetScaledRect(slot, request.ItemImages[i].Scale);
-                
-                // Use provided Y offset or generate random one
-                double yOffset = (yOffsets != null && i < yOffsets.Count) 
-                    ? yOffsets[i] 
-                    : Random.Shared.Next(-15, 16);
+                double yOffset = yOffsets != null && i < yOffsets.Count ? yOffsets[i] : Random.Shared.Next(-15, 16);
                 scaledRect = new Rect(scaledRect.X, scaledRect.Y + yOffset, scaledRect.Width, scaledRect.Height);
-                
-                var clampedRect = Rect.Intersect(scaledRect, template.SafeZone);
-                
-                // Skip if completely outside safe zone
-                if (clampedRect.IsEmpty)
-                    continue;
-                
-                int targetW = (int)Math.Round(clampedRect.Width);
-                int targetH = (int)Math.Round(clampedRect.Height);
 
-                var imageSharp = _imageLoader.LoadImageSharp(request.ItemImages[i].SourcePath);
-                var image = _imageProcessor.PrepareAndRemoveWhite(imageSharp, targetW, targetH);
+                int targetW = (int)Math.Round(scaledRect.Width);
+                int targetH = (int)Math.Round(scaledRect.Height);
+                if (targetW <= 0 || targetH <= 0) continue;
 
-                var drawRect = clampedRect.FitTo(image);
-                context.DrawImage(image, drawRect);
+                var image = _imageProcessor.PrepareAndRemoveWhite(_imageLoader.LoadImageSharp(request.ItemImages[i].SourcePath), targetW, targetH);
+                context.DrawImage(image, scaledRect.FitTo(image));
 
-                // Draw number overlay if enabled (apply same yOffset to keep in sync with image)
                 if (slot.ShowNumber && slot.NumberArea.HasValue)
-                {
-                    var numberArea = slot.NumberArea.Value;
-                    
-                    // Apply the same Y offset to the number area
-                    double numberY = numberArea.Y + yOffset;
-
-                    // Create two number texts offset for 3d effect
-                    var numberTextShadow = new FormattedText(
-                        (i + 1).ToString(),
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        FlowDirection.LeftToRight,
-                        defaultFont,
-                        72,
-                        Brushes.Black,
-                        1.0);
-                    var numberText = new FormattedText(
-                        (i + 1).ToString(),
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        FlowDirection.LeftToRight,
-                        defaultFont,
-                        64,
-                        Brushes.White,
-                        1.0);
-
-                    // Draw shadow offset (with yOffset applied)
-                    context.DrawText(
-                        numberTextShadow,
-                        new Point(
-                            numberArea.X + (numberArea.Width - numberTextShadow.Width) / 2 + 6,
-                            numberY + (numberArea.Height - numberTextShadow.Height) / 2));
-                    // Draw main text (with yOffset applied)
-                    context.DrawText(
-                        numberText,
-                        new Point(
-                            numberArea.X + (numberArea.Width - numberText.Width) / 2,
-                            numberY + (numberArea.Height - numberText.Height) / 2));
-                }
+                    DrawNumber(context, i + 1, slot.NumberArea.Value.X, slot.NumberArea.Value.Y + yOffset, 1.0);
             }
 
-            // Captions - use specified font size, no auto-scaling
             for (int i = 0; i < request.Captions.Count && i < template.CaptionAreas.Count; i++)
-            {
-                var caption = request.Captions[i];
-                var area = template.CaptionAreas[i];
-                DrawOutlinedTextFixedSize(
-                    context,
-                    caption.Text,
-                    area,
-                    caption.FontSize,
-                    Brushes.Black,
-                    Brushes.White,
-                    2,
-                    TextAlignment.Center);
-            }
+                DrawOutlinedTextFixed(context, request.Captions[i].Text, template.CaptionAreas[i], request.Captions[i].FontSize, 2, _defaultFont);
 
-            // Footer
             if (!string.IsNullOrEmpty(request.Footer) && template.FooterArea.HasValue)
-            {
-                var footerArea = template.FooterArea.Value;
-                DrawOutlinedTextAutoFit(
-                    context,
-                    request.Footer,
-                    footerArea,
-                    48,
-                    18,
-                    Brushes.Black,
-                    Brushes.White,
-                    4,
-                    TextAlignment.Center);
-            }
+                DrawOutlinedText(context, request.Footer, template.FooterArea.Value, 48, 18, 4, _defaultFont);
 
-            // Finalize
             context.Close();
             bitmap.Render(visual);
             bitmap.Freeze();
             return bitmap;
         }
 
-        private static void DrawOutlinedTextAutoFit(DrawingContext ctx, string text, Rect area, double maxFontSize, double minFontSize, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
+        public RenderTargetBitmap RenderWithEditorPositions(
+            PinRequest request, string backgroundPath,
+            ElementPosition titlePosition, ElementPosition subtitlePosition, ElementPosition? footerPosition,
+            List<ElementPosition> captionPositions, List<EditorImageElement> imageElements, List<EditorNumberElement> numberElements,
+            double titleFontSize = 64, double subtitleFontSize = 32, double footerFontSize = 48,
+            Typeface? titleFont = null, Typeface? subtitleFont = null, Typeface? footerFont = null, List<Typeface>? captionFonts = null)
         {
-            if (string.IsNullOrWhiteSpace(text))
-                return;
+            titleFont ??= _defaultFont;
+            subtitleFont ??= _defaultFont;
+            footerFont ??= _defaultFont;
 
-            FormattedText ft = null;
-            double fontSize = maxFontSize;
+            var bitmap = new RenderTargetBitmap(CanvasWidth, CanvasHeight, 96, 96, PixelFormats.Pbgra32);
+            var visual = new DrawingVisual();
+            RenderOptions.SetBitmapScalingMode(visual, BitmapScalingMode.HighQuality);
 
-            // Decrease font size until it fits within area
-            while (fontSize >= minFontSize)
+            using var context = visual.RenderOpen();
+
+            context.DrawImage(_imageLoader.Load(backgroundPath), new Rect(0, 0, CanvasWidth, CanvasHeight));
+            DrawOutlinedTextFixed(context, request.Title, titlePosition.ToRect(), titleFontSize, 4, titleFont);
+            DrawOutlinedTextFixed(context, request.Subtitle, subtitlePosition.ToRect(), subtitleFontSize, 2, subtitleFont);
+
+            foreach (var element in imageElements)
             {
-                ft = new FormattedText(
-                    text,
-                    System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    defaultFont,
-                    fontSize,
-                    fill,
-                    1.0)
-                {
-                    MaxTextWidth = area.Width,
-                    TextAlignment = alignment,
-                    Trimming = TextTrimming.None
-                };
-                // Check if it fits, if so, break
-                if (ft.Height <= area.Height)
-                    break;
+                if (string.IsNullOrEmpty(element.SourcePath)) continue;
+                double scale = element.ItemImageRef?.Scale ?? 1.0;
+                var scaledRect = GetScaledRectFromPosition(element, scale);
+                int targetW = (int)Math.Round(scaledRect.Width);
+                int targetH = (int)Math.Round(scaledRect.Height);
+                if (targetW <= 0 || targetH <= 0) continue;
 
-                if (fontSize == minFontSize)
-                {
-                    ft.Trimming = TextTrimming.CharacterEllipsis;
-                    break;
-                }
-
-                // Otherwise, reduce font size and try again
-                fontSize -= 1;
+                var image = _imageProcessor.PrepareAndRemoveWhite(_imageLoader.LoadImageSharp(element.SourcePath), targetW, targetH);
+                context.DrawImage(image, scaledRect.FitTo(image));
             }
 
-            if (ft == null || fontSize < minFontSize)
-                return;
-
-            // Center vertically within area
-            var origin = new Point(
-                area.X,
-                area.Y + (area.Height - ft.Height) / 2);
-
-            // Build geometry and draw with stroke and fill
-            var geo = ft.BuildGeometry(origin);
-            ctx.DrawGeometry(null, new Pen(stroke, strokeWidth), geo);
-            ctx.DrawGeometry(fill, null, geo);
-        }
-
-        private static void DrawOutlinedTextFixedSize(DrawingContext ctx, string text, Rect area, double fontSize, Brush fill, Brush stroke, double strokeWidth, TextAlignment alignment = TextAlignment.Left)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return;
-
-            var ft = new FormattedText(
-                text,
-                System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                defaultFont,
-                fontSize,
-                fill,
-                1.0)
+            for (int i = 0; i < request.Captions.Count && i < captionPositions.Count; i++)
             {
-                MaxTextWidth = area.Width,
-                TextAlignment = alignment,
-                Trimming = TextTrimming.CharacterEllipsis
-            };
+                if (!string.IsNullOrWhiteSpace(request.Captions[i].Text))
+                {
+                    var captionFont = captionFonts != null && i < captionFonts.Count ? captionFonts[i] : _defaultFont;
+                    DrawOutlinedTextFixed(context, request.Captions[i].Text, captionPositions[i].ToRect(), request.Captions[i].FontSize, 2, captionFont);
+                }
+            }
 
-            // Center vertically within area
-            var origin = new Point(
-                area.X,
-                area.Y + (area.Height - ft.Height) / 2);
+            if (!string.IsNullOrEmpty(request.Footer) && footerPosition != null)
+                DrawOutlinedTextFixed(context, request.Footer, footerPosition.ToRect(), footerFontSize, 4, footerFont);
 
-            // Build geometry and draw with stroke and fill
-            var geo = ft.BuildGeometry(origin);
-            ctx.DrawGeometry(null, new Pen(stroke, strokeWidth), geo);
-            ctx.DrawGeometry(fill, null, geo);
+            foreach (var num in numberElements)
+                DrawNumber(context, num.Number, num.X, num.Y, num.Scale);
+
+            context.Close();
+            bitmap.Render(visual);
+            bitmap.Freeze();
+            return bitmap;
         }
+
+        private void DrawOutlinedText(DrawingContext ctx, string text, Rect area, double maxSize, double minSize, double stroke, Typeface font)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+            FormattedText? ft = null;
+            for (double size = maxSize; size >= minSize; size--)
+            {
+                ft = CreateFormattedText(text, size, area.Width, font);
+                if (ft.Height <= area.Height) break;
+                if (size == minSize) ft.Trimming = TextTrimming.CharacterEllipsis;
+            }
+            if (ft == null) return;
+            var origin = new Point(area.X, area.Y + (area.Height - ft.Height) / 2);
+            var geo = ft.BuildGeometry(origin);
+            ctx.DrawGeometry(null, new Pen(Brushes.White, stroke), geo);
+            ctx.DrawGeometry(Brushes.Black, null, geo);
+        }
+
+        private void DrawOutlinedTextFixed(DrawingContext ctx, string text, Rect area, double fontSize, double stroke, Typeface font)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+            var ft = CreateFormattedText(text, fontSize, area.Width, font);
+            ft.Trimming = TextTrimming.CharacterEllipsis;
+            var origin = new Point(area.X, area.Y + (area.Height - ft.Height) / 2);
+            var geo = ft.BuildGeometry(origin);
+            ctx.DrawGeometry(null, new Pen(Brushes.White, stroke), geo);
+            ctx.DrawGeometry(Brushes.Black, null, geo);
+        }
+
+        private void DrawNumber(DrawingContext ctx, int number, double x, double y, double scale)
+        {
+            var shadow = new FormattedText(number.ToString(), System.Globalization.CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, _defaultFont, 72 * scale, Brushes.Black, 1.0);
+            var main = new FormattedText(number.ToString(), System.Globalization.CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, _defaultFont, 64 * scale, Brushes.White, 1.0);
+            ctx.DrawText(shadow, new Point(x + 6, y));
+            ctx.DrawText(main, new Point(x, y));
+        }
+
+        private static FormattedText CreateFormattedText(string text, double fontSize, double maxWidth, Typeface font) =>
+            new(text, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, font, fontSize, Brushes.Black, 1.0)
+            {
+                MaxTextWidth = maxWidth,
+                TextAlignment = TextAlignment.Center,
+                Trimming = TextTrimming.None
+            };
 
         private static Rect GetScaledRect(TemplateSlot slot, double scale)
         {
-            // Original center point
-            double centerX = slot.Bounds.X + slot.Bounds.Width / 2;
-            double centerY = slot.Bounds.Y + slot.Bounds.Height / 2;
+            double cx = slot.Bounds.X + slot.Bounds.Width / 2, cy = slot.Bounds.Y + slot.Bounds.Height / 2;
+            double w = slot.Bounds.Width * scale, h = slot.Bounds.Height * scale;
+            return new Rect(cx - w / 2, cy - h / 2, w, h);
+        }
 
-            // New dimensions
-            double newWidth = slot.Bounds.Width * scale;
-            double newHeight = slot.Bounds.Height * scale;
-
-            // Reposition around same center
-            return new Rect(
-                centerX - newWidth / 2,
-                centerY - newHeight / 2,
-                newWidth,
-                newHeight);
+        private static Rect GetScaledRectFromPosition(EditorImageElement e, double scale)
+        {
+            double cx = e.X + e.Width / 2, cy = e.Y + e.Height / 2;
+            double w = e.Width * scale, h = e.Height * scale;
+            return new Rect(cx - w / 2, cy - h / 2, w, h);
         }
     }
 }

@@ -10,18 +10,6 @@ namespace PinGen.Core.Validation
         public static bool Validate(PinRequest request)
         {
             // Basic validation checks
-            if (string.IsNullOrWhiteSpace(request.Title))
-                return false;
-
-            if (string.IsNullOrWhiteSpace(request.Subtitle))
-                return false;
-
-            foreach (var caption in request.Captions)
-            {
-                if (string.IsNullOrWhiteSpace(caption.Text))
-                    return false;
-            }
-
             if (request.ItemImages == null || request.ItemImages.Count == 0)
                 return false;
 

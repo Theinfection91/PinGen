@@ -9,8 +9,7 @@ using PinGen.Rendering.Interfaces;
 using PinGen.Rendering.Services;
 using PinGen.Templates.Interfaces;
 using PinGen.Templates.Services;
-using System.Configuration;
-using System.Data;
+using System;
 using System.Windows;
 
 namespace PinGen.App
@@ -20,7 +19,7 @@ namespace PinGen.App
     /// </summary>
     public partial class App : Application
     {
-        public static IServiceProvider Services { get; private set; }
+        public static IServiceProvider Services { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -46,5 +45,4 @@ namespace PinGen.App
             mainWindow.Show();
         }
     }
-
 }
