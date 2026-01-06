@@ -28,15 +28,15 @@ namespace PinGen.App.Views
         private readonly List<ItemImage> _subscribedSlots = new();
 
         private static Typeface? _horizonFont;
-        
-        private int _currentMaxZIndex = 0;
 
-        // Track cycling state
+        private int _currentNonNumberZIndex = 0;
+        private int _currentNumberZIndex = 0;
+        private const int NumberElementBaseZIndex = 1000;
+
         private List<Border>? _lastCycleElements;
         private int _lastCycleIndex;
         private Point _lastCyclePoint;
 
-        // Supported image extensions for batch loading
         private static readonly string[] SupportedImageExtensions = { ".png", ".jpg", ".jpeg", ".bmp", ".gif" };
 
         public AwakenWindow()
@@ -154,7 +154,8 @@ namespace PinGen.App.Views
 
         private void RebuildAllCanvasElements()
         {
-            _currentMaxZIndex = 0;
+            _currentNonNumberZIndex = 0;
+            _currentNumberZIndex = 0;
             ResetCycleState();
             RebuildTextElementsOnCanvas();
             RebuildImageElementsOnCanvas();
@@ -206,6 +207,7 @@ namespace PinGen.App.Views
         private Border CreateOutlinedTextElement(string text, ElementPosition pos, double fontSize, double strokeWidth, string tag, Color? bgColor = null)
         {
             var path = new Path();
+            double actualTextHeight = pos.Height;
 
             if (!string.IsNullOrWhiteSpace(text))
             {
@@ -220,20 +222,23 @@ namespace PinGen.App.Views
                 {
                     MaxTextWidth = pos.Width,
                     TextAlignment = TextAlignment.Center,
-                    Trimming = TextTrimming.CharacterEllipsis
+                    Trimming = TextTrimming.None
                 };
 
-                var geometry = ft.BuildGeometry(new Point(0, (pos.Height - ft.Height) / 2));
+                actualTextHeight = Math.Max(ft.Height + strokeWidth * 2, pos.Height);
+                var geometry = ft.BuildGeometry(new Point(0, (actualTextHeight - ft.Height) / 2));
                 path.Data = geometry;
                 path.Stroke = Brushes.White;
                 path.StrokeThickness = strokeWidth;
                 path.Fill = Brushes.Black;
             }
 
+            RenderOptions.SetEdgeMode(path, EdgeMode.Unspecified);
+
             var border = new Border
             {
                 Width = pos.Width,
-                Height = pos.Height,
+                Height = actualTextHeight,
                 Background = new SolidColorBrush(bgColor ?? Color.FromArgb(0x40, 0x00, 0x00, 0x00)),
                 BorderBrush = Brushes.Transparent,
                 BorderThickness = new Thickness(2),
@@ -279,12 +284,17 @@ namespace PinGen.App.Views
 
             if (DataContext is not AwakenWindowViewModel vm) return;
 
+            int numberIndex = 0;
             foreach (var element in vm.EditorNumberElements)
             {
                 var border = CreateNumberElementBorder(element);
                 _numberElementBorders.Add(border);
                 EditorCanvas.Children.Add(border);
+                Canvas.SetZIndex(border, NumberElementBaseZIndex + numberIndex);
+                numberIndex++;
             }
+
+            _currentNumberZIndex = _numberElementBorders.Count;
         }
 
         private Border CreateImageElementBorder(EditorImageElement element)
@@ -296,6 +306,8 @@ namespace PinGen.App.Views
             double offsetY = (element.Height - scaledHeight) / 2;
 
             var image = new Image { Source = element.ThumbnailSource, Stretch = Stretch.Uniform, Margin = new Thickness(4) };
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+
             var grid = new Grid { Background = new SolidColorBrush(Color.FromArgb(0x40, 0x44, 0x00, 0x44)) };
             grid.Children.Add(image);
 
@@ -305,6 +317,7 @@ namespace PinGen.App.Views
                 BorderBrush = Brushes.Transparent, BorderThickness = new Thickness(2),
                 Cursor = Cursors.SizeAll, Child = grid
             };
+            RenderOptions.SetBitmapScalingMode(border, BitmapScalingMode.HighQuality);
 
             Canvas.SetLeft(border, element.X + offsetX);
             Canvas.SetTop(border, element.Y + offsetY);
@@ -337,6 +350,9 @@ namespace PinGen.App.Views
                 VerticalAlignment = VerticalAlignment.Center
             };
 
+            TextOptions.SetTextRenderingMode(shadowText, TextRenderingMode.ClearType);
+            TextOptions.SetTextRenderingMode(mainText, TextRenderingMode.ClearType);
+
             var grid = new Grid();
             grid.Children.Add(shadowText);
             grid.Children.Add(mainText);
@@ -366,7 +382,7 @@ namespace PinGen.App.Views
         private void BrowseImage_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button || button.Tag is not ItemImage slot) return;
-            var dialog = new OpenFileDialog { Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.gif;" };
+            var dialog = new OpenFileDialog { Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.gif" };
             if (dialog.ShowDialog() == true)
             {
                 slot.SourcePath = dialog.FileName;
@@ -374,70 +390,40 @@ namespace PinGen.App.Views
             }
         }
 
-        /// <summary>
-        /// Batch load images from a folder. Requires 4-8 supported image files.
-        /// </summary>
         private void LoadFolder_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFolderDialog
-            {
-                Title = "Select a folder containing 4-8 images"
-            };
+            var dialog = new OpenFolderDialog { Title = "Select a folder containing 4-8 images" };
 
-            if (dialog.ShowDialog() != true)
-                return;
+            if (dialog.ShowDialog() != true) return;
 
-            var folderPath = dialog.FolderName;
-
-            // Get all supported image files, sorted by name
-            var imageFiles = System.IO.Directory.GetFiles(folderPath)
+            var imageFiles = System.IO.Directory.GetFiles(dialog.FolderName)
                 .Where(f => SupportedImageExtensions.Contains(System.IO.Path.GetExtension(f).ToLowerInvariant()))
                 .OrderBy(f => f)
                 .ToList();
 
             if (imageFiles.Count < 4)
             {
-                MessageBox.Show(
-                    $"Found {imageFiles.Count} image(s) in folder.\nNeed at least 4 images (supports up to 8).\n\nSupported formats: PNG, JPG, JPEG, BMP, GIF",
-                    "Not Enough Images",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                MessageBox.Show($"Found {imageFiles.Count} image(s). Need 4-8 images.\n\nSupported: PNG, JPG, JPEG, BMP, GIF",
+                    "Not Enough Images", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (imageFiles.Count > 8)
             {
-                MessageBox.Show(
-                    $"Found {imageFiles.Count} images in folder.\nMaximum is 8 images. Only the first 8 will be loaded.",
-                    "Too Many Images",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                MessageBox.Show($"Found {imageFiles.Count} images. Only first 8 will be loaded.",
+                    "Too Many Images", MessageBoxButton.OK, MessageBoxImage.Information);
                 imageFiles = imageFiles.Take(8).ToList();
             }
 
-            if (DataContext is not AwakenWindowViewModel vm)
-                return;
+            if (DataContext is not AwakenWindowViewModel vm) return;
 
-            // Clear existing slots first
             vm.ClearAllSlots();
-
-            // Get slots array for easy indexing
             var slots = new[] { vm.Slot1, vm.Slot2, vm.Slot3, vm.Slot4, vm.Slot5, vm.Slot6, vm.Slot7, vm.Slot8 };
-
-            // Load each image into corresponding slot
             for (int i = 0; i < imageFiles.Count; i++)
-            {
                 slots[i].SourcePath = imageFiles[i];
-            }
 
-            // Refresh the editor
             vm.RefreshEditorImageElements();
-
-            MessageBox.Show(
-                $"Loaded {imageFiles.Count} images from:\n{folderPath}",
-                "Batch Load Complete",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            MessageBox.Show($"Loaded {imageFiles.Count} images.", "Batch Load Complete", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void ClearSlot_Click(object sender, RoutedEventArgs e)
@@ -455,22 +441,38 @@ namespace PinGen.App.Views
             RebuildAllCanvasElements();
         }
 
-        private void BringToFront(UIElement element)
+        private void ClearAllText_Click(object sender, RoutedEventArgs e)
         {
-            _currentMaxZIndex++;
-            Canvas.SetZIndex(element, _currentMaxZIndex);
+            if (DataContext is not AwakenWindowViewModel vm) return;
+            vm.Title = string.Empty;
+            vm.Subtitle = string.Empty;
+            vm.Footer = string.Empty;
+            vm.Caption1.Text = string.Empty;
+            vm.Caption2.Text = string.Empty;
+            vm.Caption3.Text = string.Empty;
         }
 
-        /// <summary>
-        /// Gets all elements whose bounds contain the point (ignores Z-index for detection).
-        /// </summary>
+        private void BringToFront(UIElement element)
+        {
+            if (element is Border border && border.Tag is EditorNumberElement)
+            {
+                // Number elements stay in their high Z-index range
+                _currentNumberZIndex++;
+                Canvas.SetZIndex(element, NumberElementBaseZIndex + _currentNumberZIndex);
+            }
+            else
+            {
+                // Non-number elements use their own counter, capped below NumberElementBaseZIndex
+                _currentNonNumberZIndex++;
+                if (_currentNonNumberZIndex >= NumberElementBaseZIndex)
+                    _currentNonNumberZIndex = 1;
+                Canvas.SetZIndex(element, _currentNonNumberZIndex);
+            }
+        }
+
         private List<Border> GetElementsAtPoint(Point point)
         {
-            var allElements = _textElementBorders
-                .Concat(_imageElementBorders)
-                .Concat(_numberElementBorders)
-                .ToList();
-
+            var allElements = _textElementBorders.Concat(_imageElementBorders).Concat(_numberElementBorders).ToList();
             var elementsAtPoint = new List<Border>();
 
             foreach (var element in allElements)
@@ -480,27 +482,20 @@ namespace PinGen.App.Views
                 if (double.IsNaN(left)) left = 0;
                 if (double.IsNaN(top)) top = 0;
 
-                var bounds = new Rect(left, top, element.Width, element.Height);
-                if (bounds.Contains(point))
-                {
+                if (new Rect(left, top, element.Width, element.Height).Contains(point))
                     elementsAtPoint.Add(element);
-                }
             }
 
-            // Return in consistent order (by original list order, not Z-index)
             return elementsAtPoint;
         }
 
-        private string GetElementDisplayName(FrameworkElement element)
+        private string GetElementDisplayName(FrameworkElement element) => element.Tag switch
         {
-            return element.Tag switch
-            {
-                EditorImageElement img => $"Image {img.SlotNumber} (Scale: {img.ItemImageRef?.Scale:F1}x)",
-                EditorNumberElement num => $"Number {num.Number} (Scale: {num.Scale:F1}x)",
-                string s => s,
-                _ => "Unknown"
-            };
-        }
+            EditorImageElement img => $"Image {img.SlotNumber} (Scale: {img.ItemImageRef?.Scale:F1}x)",
+            EditorNumberElement num => $"Number {num.Number} (Scale: {num.Scale:F1}x)",
+            string s => s,
+            _ => "Unknown"
+        };
 
         #region Drag and Drop
 
@@ -508,16 +503,12 @@ namespace PinGen.App.Views
         {
             if (sender is not FrameworkElement element) return;
 
-            var clickPoint = e.GetPosition(EditorCanvas);
-
-            // Reset cycle state on left-click
             ResetCycleState();
-
             BringToFront(element);
-            
+
             _isDragging = true;
             _draggedElement = element;
-            _dragStartPoint = clickPoint;
+            _dragStartPoint = e.GetPosition(EditorCanvas);
             _elementStartLeft = Canvas.GetLeft(element);
             _elementStartTop = Canvas.GetTop(element);
             if (double.IsNaN(_elementStartLeft)) _elementStartLeft = 0;
@@ -525,29 +516,22 @@ namespace PinGen.App.Views
             element.CaptureMouse();
 
             if (DataContext is AwakenWindowViewModel vm)
-            {
                 vm.SelectedElementName = GetElementDisplayName(element);
-            }
+
             e.Handled = true;
         }
 
-        /// <summary>
-        /// Right-click cycles through all overlapping elements at that point.
-        /// </summary>
         private void DraggableElement_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement element) return;
 
             var clickPoint = e.GetPosition(EditorCanvas);
-
-            // Check if we're continuing a cycle at the same location
             bool isSameLocation = _lastCycleElements != null &&
                                   Math.Abs(clickPoint.X - _lastCyclePoint.X) < 5 &&
                                   Math.Abs(clickPoint.Y - _lastCyclePoint.Y) < 5;
 
             if (!isSameLocation)
             {
-                // New location - rebuild the cycle list
                 _lastCycleElements = GetElementsAtPoint(clickPoint);
                 _lastCyclePoint = clickPoint;
                 _lastCycleIndex = 0;
@@ -559,16 +543,12 @@ namespace PinGen.App.Views
                 return;
             }
 
-            // Move to next element in cycle
             _lastCycleIndex = (_lastCycleIndex + 1) % _lastCycleElements.Count;
             var nextElement = _lastCycleElements[_lastCycleIndex];
-
             BringToFront(nextElement);
 
             if (DataContext is AwakenWindowViewModel vm)
-            {
                 vm.SelectedElementName = $"{GetElementDisplayName(nextElement)} ({_lastCycleIndex + 1}/{_lastCycleElements.Count})";
-            }
 
             e.Handled = true;
         }
@@ -577,11 +557,9 @@ namespace PinGen.App.Views
         {
             if (!_isDragging || _draggedElement == null) return;
             var pt = e.GetPosition(EditorCanvas);
-            var newLeft = _elementStartLeft + (pt.X - _dragStartPoint.X);
-            var newTop = _elementStartTop + (pt.Y - _dragStartPoint.Y);
-            Canvas.SetLeft(_draggedElement, newLeft);
-            Canvas.SetTop(_draggedElement, newTop);
-            UpdateElementPosition(_draggedElement, newLeft, newTop);
+            Canvas.SetLeft(_draggedElement, _elementStartLeft + (pt.X - _dragStartPoint.X));
+            Canvas.SetTop(_draggedElement, _elementStartTop + (pt.Y - _dragStartPoint.Y));
+            UpdateElementPosition(_draggedElement, Canvas.GetLeft(_draggedElement), Canvas.GetTop(_draggedElement));
             e.Handled = true;
         }
 

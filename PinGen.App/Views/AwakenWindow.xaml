@@ -230,10 +230,14 @@
                                Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
 
-                <Button Content="Clear All Text" HorizontalAlignment="Center" Padding="12,6" Margin="0,0,0,16" />
+                <Button Content="Clear All Text" 
+                        HorizontalAlignment="Center" 
+                        Padding="12,6" 
+                        Margin="0,0,0,16" 
+                        Click="ClearAllText_Click" />
 
                 <Separator Margin="0,0,0,12" />
-                <TextBlock Text="Background" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
+                <TextBlock Text="Background Preview" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Center" />
                 <RadioButton Content="Background 1" GroupName="BackgroundChoice" IsChecked="{Binding UseBackground1}" Margin="0,0,0,4" />
                 <RadioButton Content="Background 2" GroupName="BackgroundChoice" IsChecked="{Binding UseBackground2}" Margin="0,0,0,4" />
             </StackPanel>
@@ -276,14 +280,20 @@
                     Background="#1a1a1a"
                     BorderBrush="#333"
                     BorderThickness="1">
-                <Viewbox Stretch="Uniform" StretchDirection="Both">
-                    <Border Width="1000" Height="1500" Background="#222">
+                <Viewbox Stretch="Uniform" StretchDirection="Both"
+                         RenderOptions.BitmapScalingMode="HighQuality">
+                    <Border Width="1000" Height="1500" Background="#222"
+                            RenderOptions.BitmapScalingMode="HighQuality">
                         <Canvas x:Name="EditorCanvas"
                                 Width="1000"
                                 Height="1500"
                                 Background="Transparent"
-                                ClipToBounds="False">
-                            
+                                ClipToBounds="False"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                RenderOptions.EdgeMode="Aliased"
+                                TextOptions.TextFormattingMode="Display"
+                                TextOptions.TextRenderingMode="ClearType">
+							
                             <!-- Background Image Layer -->
                             <Image x:Name="EditorBackgroundImage"
                                    Source="{Binding EditorBackgroundImage}"
@@ -291,7 +301,8 @@
                                    Height="1500"
                                    Canvas.Left="0"
                                    Canvas.Top="0"
-                                   IsHitTestVisible="False" />
+                                   IsHitTestVisible="False"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
                             
                             <!-- All other elements created dynamically in code-behind -->
                             
